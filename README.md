@@ -1,4 +1,4 @@
-# Iceraven Browser! [![Build Status](https://travis-ci.org/fork-maintainers/iceweasel.svg?branch=fork)](https://travis-ci.org/fork-maintainers/iceweasel) ![Android build](https://github.com/fork-maintainers/iceweasel/workflows/Android%20build/badge.svg)
+# Iceraven Browser! [![Build Status](https://travis-ci.org/fork-maintainers/iceraven-browser.svg?branch=fork)](https://travis-ci.org/fork-maintainers/iceraven-browser) ![Android build](https://github.com/fork-maintainers/iceraven-browser/workflows/Android%20build/badge.svg)
 
 Definitely not brought to you by Mozilla!
 
@@ -8,7 +8,7 @@ Our goal is to be a close fork of the new Firefox for Android that seeks to prov
 
 Notable features include:
   * `about:config` support
-  * The ability to *attempt* to install a much longer list of add-ons than Mozilla's Fenix version of Firefox accepts. Currently the browser queries [this AMO collection](https://addons.mozilla.org/en-US/firefox/collections/16201230/What-I-want-on-Fenix/) **Most of them will not work**, because they depend on code that Mozilla is still working on writing in `android-components`, but you may attempt to install them. If you don't see an add-on you want, you can [request it](https://github.com/interfect/fenix/issues/new).
+  * The ability to *attempt* to install a much longer list of add-ons than Mozilla's Fenix version of Firefox accepts. Currently the browser queries [this AMO collection](https://addons.mozilla.org/en-US/firefox/collections/16201230/What-I-want-on-Fenix/) **Most of them will not work**, because they depend on code that Mozilla is still working on writing in `android-components`, but you may attempt to install them. If you don't see an add-on you want, you can [request it](https://github.com/fork-maintainers/iceraven-browser/issues/new).
   * **No warranties or guarantee of security or updates**. Binaries are currently are manually built and are not meaningfully signed. Why should you trust random people on the Internet to provide your web browser, one of the most important pieces of software you use? Iceraven Browser could not exist without the hardworking folks at the Mozilla Corporation who work on the Mozilla Android Components and Firefox projects, but it is not a Mozilla product, and is not provided, endorsed, vetted, approved, or secured by Mozilla.
 
 In addition, we intend to try to cut down on telemetry and proprietary code to as great of an extent as possible as long as doing so does not compromise the user experience or make the fork too hard to maintain. Right now, webelieve that no telemetry should be being sent to Mozilla anymore, but we cannot guarantee this; data may still be sent. **If you catch the app sending data to Mozilla, Adjust, Leanplum, Firebase, or any other such service, please open an issue!** Presumably data that reaches Mozilla is governed by Mozilla's privacy policy, but as Iceraven Browser is, again **not a Mozilla product**, we can make no promises.
@@ -19,7 +19,7 @@ That said, Iceraven Browser is an independent all-volunteer project, and has no 
 
 ## Installation
 
-[**Download APKs from the Releases Page**](https://github.com/interfect/fenix/releases)
+[**Download APKs from the Releases Page**](https://github.com/fork-maintainers/iceraven-browser/releases)
 
 ## Building
 
@@ -51,13 +51,13 @@ cd ..
 2. Clone the project.
 
 ```sh
-git clone https://github.com/interfect/fenix
+git clone https://github.com/fork-maintainers/iceraven-browser
 ```
 
-4. Go inside `fenix`. That's where the build is coordinated from.
+4. Go inside `iceraven-browser`. That's where the build is coordinated from.
 
 ```sh
-cd fenix
+cd iceraven-browser
 ```
 
 5. Configure the project. We need to set the release builds to be signed with the debug key, because proper code signing isn't set up yet and the completely unsigned APKs that are produced by default cannot be installed.
