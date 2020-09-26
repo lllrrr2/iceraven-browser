@@ -550,6 +550,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         appContext.getPreferenceKey(R.string.pref_key_strip_url),
         default = true
     )
+    
+    var shouldRelinquishMemoryUnderPressure by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_relinquish_memory_under_pressure),
+        default = true
+    )
 
     /**
      * Check each active accessibility service to see if it can perform gestures, if any can,
