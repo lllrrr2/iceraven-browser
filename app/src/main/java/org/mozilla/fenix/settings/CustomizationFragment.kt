@@ -257,7 +257,7 @@ class CustomizationFragment : PreferenceFragmentCompat() {
             onPreferenceChangeListener = SharedPreferenceUpdater()
         }
     }
-    
+
     private fun setupSystemBehaviorCategory() {
         requirePreference<SwitchPreference>(R.string.pref_key_relinquish_memory_under_pressure).apply {
             isChecked = context.settings().shouldRelinquishMemoryUnderPressure

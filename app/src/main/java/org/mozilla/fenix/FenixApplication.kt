@@ -326,7 +326,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
         runOnlyInMainProcess {
             components.core.icons.onTrimMemory(level)
-            
+
             // We want to be judicious in passing low mamory messages to
             // android-components, because it is (at time of writing) hardcoded
             // to drop tab states (and any user data in them) as soon as we
