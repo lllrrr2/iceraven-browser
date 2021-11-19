@@ -80,8 +80,8 @@ import org.mozilla.fenix.components.Core
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MozillaProductDetector
 import org.mozilla.fenix.components.toolbar.ToolbarPosition
-import org.mozilla.fenix.perf.MarkersLifecycleCallbacks
-import org.mozilla.fenix.tabstray.ext.inactiveTabs
+import org.mozilla.fenix.ext.actualInactiveTabs
+import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
 import org.mozilla.fenix.utils.Settings
 
 /**
@@ -198,7 +198,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
         visibilityLifecycleCallback = VisibilityLifecycleCallback(getSystemService())
         registerActivityLifecycleCallbacks(visibilityLifecycleCallback)
-        registerActivityLifecycleCallbacks(MarkersLifecycleCallbacks(components.core.engine))
+        registerActivityLifecycleCallbacks(MarkersActivityLifecycleCallbacks(components.core.engine))
 
         // Storage maintenance disabled, for now, as it was interfering with background migrations.
         // See https://github.com/mozilla-mobile/fenix/issues/7227 for context.
@@ -428,22 +428,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
         runOnlyInMainProcess {
             components.core.icons.onTrimMemory(level)
-
-            // We want to be judicious in passing low mamory messages to
-            // android-components, because it is (at time of writing) hardcoded
-            // to drop tab states (and any user data in them) as soon as we
-            // reach "moderate" memory pressure on the system, even if the
-            // browser is in no danger of being killed. See
-            // https://github.com/mozilla-mobile/android-components/blob/38186676d46c555b5a24268e5fa361e45e57102c/components/browser/session/src/main/java/mozilla/components/browser/session/engine/middleware/TrimMemoryMiddleware.kt#L53-L64
-            // for the relvant android-components code and
-            // https://stuff.mit.edu/afs/sipb/project/android/docs/reference/android/content/ComponentCallbacks2.html
-            // for the list of memory pressure levels.
-            val settings = this.settings()
-            if (settings.shouldRelinquishMemoryUnderPressure) {
-                // We will give up our RAM when asked nicely
-                components.core.store.dispatch(SystemAction.LowMemoryAction(level))
-            }
-            // Otherwise we will die for our RAM, if pressed.
+            components.core.store.dispatch(SystemAction.LowMemoryAction(level))
         }
     }
 
@@ -642,7 +627,8 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
             tabViewSetting.set(settings.getTabViewPingString())
             closeTabSetting.set(settings.getTabTimeoutPingString())
-            inactiveTabsCount.set(browserStore.state.inactiveTabs.size.toLong())
+
+            inactiveTabsCount.set(browserStore.state.actualInactiveTabs(settings).size.toLong())
 
             val installSourcePackage = if (SDK_INT >= Build.VERSION_CODES.R) {
                 packageManager.getInstallSourceInfo(packageName).installingPackageName
@@ -686,6 +672,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
             voiceSearchEnabled.set(settings.shouldShowVoiceSearch)
             openLinksInAppEnabled.set(settings.openLinksInExternalApp)
             signedInSync.set(settings.signedInFxaAccount)
+            searchTermGroupsEnabled.set(settings.searchTermTabGroupsAreEnabled)
 
             val syncedItems = SyncEnginesStorage(applicationContext).getStatus().entries.filter {
                 it.value

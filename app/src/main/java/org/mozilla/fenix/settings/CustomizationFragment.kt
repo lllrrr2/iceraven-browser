@@ -52,7 +52,6 @@ class CustomizationFragment : PreferenceFragmentCompat() {
         bindAutoBatteryTheme()
         setupRadioGroups()
         setupToolbarCategory()
-        setupHomeCategory()
         setupGesturesCategory()
         setupAddonsCustomizationCategory()
         setupSystemBehaviorCategory()
@@ -147,37 +146,6 @@ class CustomizationFragment : PreferenceFragmentCompat() {
         bottomPreference.setCheckedWithoutClickListener(toolbarPosition == ToolbarPosition.BOTTOM)
 
         addToRadioGroup(topPreference, bottomPreference)
-    }
-
-    private fun setupHomeCategory() {
-        requirePreference<SwitchPreference>(R.string.pref_key_enable_top_frecent_sites).apply {
-            isChecked = context.settings().showTopFrecentSites
-            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
-        }
-
-        requirePreference<SwitchPreference>(R.string.pref_key_recent_tabs).apply {
-            isVisible = FeatureFlags.showRecentTabsFeature
-            isChecked = context.settings().showRecentTabsFeature
-            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
-        }
-
-        requirePreference<SwitchPreference>(R.string.pref_key_recent_bookmarks).apply {
-            isVisible = FeatureFlags.recentBookmarksFeature
-            isChecked = context.settings().showRecentBookmarksFeature
-            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
-        }
-
-        requirePreference<SwitchPreference>(R.string.pref_key_pocket_homescreen_recommendations).apply {
-            isVisible = FeatureFlags.isPocketRecommendationsFeatureEnabled(context)
-            isChecked = context.settings().showPocketRecommendationsFeature
-            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
-        }
-
-        requirePreference<SwitchPreference>(R.string.pref_key_history_metadata_feature).apply {
-            isVisible = FeatureFlags.historyMetadataUIFeature
-            isChecked = context.settings().historyMetadataUIFeature
-            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
-        }
     }
 
     private fun setupGesturesCategory() {

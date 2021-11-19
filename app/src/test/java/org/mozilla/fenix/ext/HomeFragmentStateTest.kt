@@ -11,9 +11,9 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mozilla.fenix.home.HomeFragmentState
-import org.mozilla.fenix.home.sessioncontrol.viewholders.pocket.POCKET_STORIES_DEFAULT_CATEGORY_NAME
-import org.mozilla.fenix.home.sessioncontrol.viewholders.pocket.PocketRecommendedStoriesCategory
-import org.mozilla.fenix.home.sessioncontrol.viewholders.pocket.PocketRecommendedStoriesSelectedCategory
+import org.mozilla.fenix.home.pocket.POCKET_STORIES_DEFAULT_CATEGORY_NAME
+import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
+import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesSelectedCategory
 import kotlin.random.Random
 
 class HomeFragmentStateTest {
@@ -140,7 +140,7 @@ class HomeFragmentStateTest {
 
     @Test
     fun `GIVEN a category is selected WHEN getFilteredStoriesCount is called for more stories than in this category THEN return only that`() {
-        var result = getFilteredStoriesCount(listOf(otherStoriesCategory), 4)
+        val result = getFilteredStoriesCount(listOf(otherStoriesCategory), 4)
         assertEquals(1, result.keys.size)
         assertEquals(otherStoriesCategory.name, result.entries.first().key)
         assertEquals(3, result[otherStoriesCategory.name])
