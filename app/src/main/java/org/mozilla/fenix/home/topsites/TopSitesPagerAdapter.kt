@@ -13,7 +13,6 @@ import mozilla.components.feature.top.sites.TopSite
 import org.mozilla.fenix.home.sessioncontrol.AdapterItem.TopSitePagerPayload
 import org.mozilla.fenix.home.sessioncontrol.TopSiteInteractor
 import org.mozilla.fenix.home.topsites.TopSitePagerViewHolder.Companion.TOP_SITES_PER_PAGE
-import org.mozilla.fenix.home.sessioncontrol.viewholders.TopSiteViewHolder
 import java.lang.IndexOutOfBoundsException
 
 class TopSitesPagerAdapter(
