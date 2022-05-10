@@ -16,11 +16,12 @@ object FeatureFlags {
      * Pull-to-refresh allows you to pull the web content down far enough to have the page to
      * reload.
      */
-    val pullToRefreshEnabled = Config.channel.isNightlyOrDebug
+    const val pullToRefreshEnabled = true
 
     /**
      * Enables the Sync Addresses feature.
      */
+<<<<<<< HEAD
     const val syncAddressesFeature = false
 
     /**
@@ -37,6 +38,9 @@ object FeatureFlags {
      * Enables the first run onboarding updates.
      */
     const val showFirstRunOnboardingUpdates = false
+=======
+    const val addressesFeature = true
+>>>>>>> e1281c453... Do all of Iceraven in one commit
 
     /**
      * Enables the "recent" tabs feature in the home screen.
