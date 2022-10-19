@@ -108,7 +108,7 @@ class Components(private val context: Context) {
             context,
             core.client,
             serverURL = BuildConfig.AMO_SERVER_URL,
-            maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE
+            maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE,
         )
     }
 

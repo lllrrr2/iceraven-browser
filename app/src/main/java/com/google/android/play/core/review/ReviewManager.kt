@@ -17,6 +17,7 @@ class ReviewManager {
     fun requestReviewFlow(): FakeReviewFlowTask {
         return FakeReviewFlowTask()
     }
+
     @Suppress("UNUSED_PARAMETER", "UNUSED_EXPRESSION")
     fun launchReviewFlow(ignored1: Any, ignored2: Any) {
         1

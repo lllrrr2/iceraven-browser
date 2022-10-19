@@ -46,6 +46,7 @@ private const val KEY_DIALOG_WIDTH_MATCH_PARENT = "KEY_DIALOG_WIDTH_MATCH_PARENT
 private const val KEY_CONFIRM_BUTTON_BACKGROUND_COLOR = "KEY_CONFIRM_BUTTON_BACKGROUND_COLOR"
 private const val KEY_CONFIRM_BUTTON_TEXT_COLOR = "KEY_CONFIRM_BUTTON_TEXT_COLOR"
 private const val KEY_CONFIRM_BUTTON_RADIUS = "KEY_CONFIRM_BUTTON_RADIUS"
+
 @VisibleForTesting internal const val KEY_ICON = "KEY_ICON"
 
 private const val DEFAULT_VALUE = Int.MAX_VALUE
@@ -59,8 +60,10 @@ private const val DEFAULT_VALUE = Int.MAX_VALUE
 @SuppressLint("all")
 class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
     private val scope = CoroutineScope(Dispatchers.IO)
+
     @VisibleForTesting internal var iconJob: Job? = null
     private val logger = Logger("PagedAddonInstallationDialogFragment")
+
     /**
      * A lambda called when the confirm button is clicked.
      */
@@ -84,7 +87,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
         get() =
             safeArguments.getInt(
                 KEY_DIALOG_GRAVITY,
-                DEFAULT_VALUE
+                DEFAULT_VALUE,
             )
     internal val dialogShouldWidthMatchParent: Boolean
         get() =
@@ -94,14 +97,14 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
         get() =
             safeArguments.getInt(
                 KEY_CONFIRM_BUTTON_BACKGROUND_COLOR,
-                DEFAULT_VALUE
+                DEFAULT_VALUE,
             )
 
     internal val confirmButtonTextColor
         get() =
             safeArguments.getInt(
                 KEY_CONFIRM_BUTTON_TEXT_COLOR,
-                DEFAULT_VALUE
+                DEFAULT_VALUE,
             )
 
     override fun onStop() {
@@ -141,8 +144,8 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
                 rootView,
                 LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                )
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                ),
             )
         }
     }
@@ -152,7 +155,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
         val rootView = LayoutInflater.from(requireContext()).inflate(
             R.layout.mozac_feature_addons_fragment_dialog_addon_installed,
             null,
-            false
+            false,
         )
 
         val binding = MozacFeatureAddonsFragmentDialogAddonInstalledBinding.bind(rootView)
@@ -161,7 +164,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
             requireContext().getString(
                 R.string.mozac_feature_addons_installed_dialog_title,
                 addon.translateName(requireContext()),
-                requireContext().appName
+                requireContext().appName,
             )
 
         val icon = safeArguments.getParcelable<Bitmap>(KEY_ICON)
@@ -199,8 +202,8 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
             shape.setColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    confirmButtonBackgroundColor
-                )
+                    confirmButtonBackgroundColor,
+                ),
             )
             shape.cornerRadius = confirmButtonRadius
             confirmButton.background = shape
@@ -226,7 +229,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
                     val att = context.theme.resolveAttribute(android.R.attr.textColorPrimary)
                     iconView.setColorFilter(ContextCompat.getColor(context, att))
                     iconView.setImageDrawable(
-                        ContextCompat.getDrawable(context, R.drawable.mozac_ic_extensions)
+                        ContextCompat.getDrawable(context, R.drawable.mozac_ic_extensions),
                     )
                 }
                 logger.error("Attempt to fetch the ${addon.id} icon failed", e)
@@ -260,11 +263,10 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
             addonCollectionProvider: PagedAddonCollectionProvider,
             promptsStyling: PromptsStyling? = PromptsStyling(
                 gravity = Gravity.BOTTOM,
-                shouldWidthMatchParent = true
+                shouldWidthMatchParent = true,
             ),
-            onConfirmButtonClicked: ((Addon, Boolean) -> Unit)? = null
+            onConfirmButtonClicked: ((Addon, Boolean) -> Unit)? = null,
         ): PagedAddonInstallationDialogFragment {
-
             val fragment = PagedAddonInstallationDialogFragment()
             val arguments = fragment.arguments ?: Bundle()
 
@@ -302,7 +304,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
         val confirmButtonBackgroundColor: Int? = null,
         @ColorRes
         val confirmButtonTextColor: Int? = null,
-        val confirmButtonRadius: Float? = null
+        val confirmButtonRadius: Float? = null,
     )
 }
 

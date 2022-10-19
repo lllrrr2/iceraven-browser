@@ -16,7 +16,7 @@ class ReleaseChannelTest {
     fun `isReleased and isDebug channels are mutually exclusive`() {
         val debugChannels = setOf(
             Debug,
-            ForkDebug
+            ForkDebug,
         )
 
         val nonDebugChannels = ReleaseChannel.values().toSet() - debugChannels

@@ -52,9 +52,9 @@ import java.util.concurrent.CancellationException
  */
 @Suppress("TooManyFunctions", "LargeClass")
 class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) {
-    
+
     private val logger = Logger("AddonsManagementFragment")
-    
+
     private val args by navArgs<AddonsManagementFragmentArgs>()
 
     private var binding: FragmentAddOnsManagementBinding? = null
@@ -64,6 +64,7 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
      */
     private var isInstallationInProgress = false
     private var adapter: PagedAddonsManagerAdapter? = null
+
     // We must save the add-on list in the class, or we won't have it
     // downloaded for the non-suspending search function
     private var addons: List<Addon>? = null
@@ -71,7 +72,7 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         logger.info("Creating view for AddonsManagementFragment")
         setHasOptionsMenu(true)
@@ -108,7 +109,7 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
             override fun onQueryTextChange(newText: String): Boolean {
                 return searchAddons(newText.trim())
             }
-        })
+        },)
     }
 
     private fun searchAddons(addonNameSubStr: String): Boolean {
@@ -167,17 +168,17 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
 
     private fun bindRecyclerView() {
         logger.info("Binding recycler view for AddonsManagementFragment")
-        
+
         val managementView = AddonsManagementView(
             navController = findNavController(),
             showPermissionDialog = ::showPermissionDialog,
         )
-        
+
         val recyclerView = binding?.addOnsList
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         val shouldRefresh = adapter != null
-        
-        logger.info("AddonsManagementFragment should refresh? ${shouldRefresh}")
+
+        logger.info("AddonsManagementFragment should refresh? $shouldRefresh")
 
         // If the fragment was launched to install an "external" add-on from AMO, we deactivate
         // the cache to get the most up-to-date list of add-ons to match against.
@@ -193,7 +194,7 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
                                 requireContext().components.addonCollectionProvider,
                                 managementView,
                                 addons!!,
-                                style = createAddonStyle(requireContext())
+                                style = createAddonStyle(requireContext()),
                             )
                         }
                         isInstallationInProgress = false

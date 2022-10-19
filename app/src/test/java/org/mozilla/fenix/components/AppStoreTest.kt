@@ -62,7 +62,7 @@ class AppStoreTest {
         currentMode = CurrentMode(
             context,
             onboarding,
-            browsingModeManager
+            browsingModeManager,
         ) {}
 
         appState = AppState(
@@ -72,7 +72,7 @@ class AppStoreTest {
             topSites = emptyList(),
             showCollectionPlaceholder = true,
             showSetAsDefaultBrowserCard = true,
-            recentTabs = emptyList()
+            recentTabs = emptyList(),
         )
 
         appStore = AppStore(appState)
@@ -122,8 +122,8 @@ class AppStoreTest {
         val highlight = RecentHistoryHighlight(title = group2.title, "")
         appStore = AppStore(
             AppState(
-                recentHistory = listOf(group1, group2, group3, highlight)
-            )
+                recentHistory = listOf(group1, group2, group3, highlight),
+            ),
         )
         assertEquals(0, appStore.state.recentTabs.size)
 
@@ -155,7 +155,7 @@ class AppStoreTest {
         val h1 = RecentHistoryHighlight(title = "highlight One", url = "url1")
         val h2 = RecentHistoryHighlight(title = "highlight two", url = "url2")
         val recentHistoryState = AppState(
-            recentHistory = listOf(g1, g2, h1, h2)
+            recentHistory = listOf(g1, g2, h1, h2),
         )
         appStore = AppStore(recentHistoryState)
 
@@ -168,7 +168,7 @@ class AppStoreTest {
         appStore.dispatch(AppAction.RemoveRecentHistoryHighlight(h1.url)).join()
         assertEquals(
             recentHistoryState.copy(recentHistory = listOf(g1, g2, h2)),
-            appStore.state
+            appStore.state,
         )
     }
 
@@ -251,8 +251,8 @@ class AppStoreTest {
                     showCollectionPlaceholder = true,
                     recentTabs = recentTabs,
                     recentBookmarks = recentBookmarks,
-                    recentHistory = recentHistory
-                )
+                    recentHistory = recentHistory,
+                ),
             ).join()
 
             assertEquals(collections, appStore.state.collections)
@@ -273,8 +273,8 @@ class AppStoreTest {
                 pocketStoriesCategories = listOf(otherStoriesCategory, anotherStoriesCategory),
                 pocketStoriesCategoriesSelections = listOf(
                     PocketRecommendedStoriesSelectedCategory(otherStoriesCategory.name),
-                )
-            )
+                ),
+            ),
         )
 
         mockkStatic("org.mozilla.fenix.ext.AppStateKt") {
@@ -301,9 +301,9 @@ class AppStoreTest {
                 pocketStoriesCategories = listOf(otherStoriesCategory, anotherStoriesCategory),
                 pocketStoriesCategoriesSelections = listOf(
                     PocketRecommendedStoriesSelectedCategory(otherStoriesCategory.name),
-                    PocketRecommendedStoriesSelectedCategory(anotherStoriesCategory.name)
-                )
-            )
+                    PocketRecommendedStoriesSelectedCategory(anotherStoriesCategory.name),
+                ),
+            ),
         )
 
         mockkStatic("org.mozilla.fenix.ext.AppStateKt") {
@@ -346,13 +346,13 @@ class AppStoreTest {
             every { any<AppState>().getFilteredStories(any()) } returns firstFilteredStories
 
             appStore.dispatch(
-                AppAction.PocketStoriesCategoriesChange(listOf(otherStoriesCategory, anotherStoriesCategory))
+                AppAction.PocketStoriesCategoriesChange(listOf(otherStoriesCategory, anotherStoriesCategory)),
             ).join()
             verify { any<AppState>().getFilteredStories(POCKET_STORIES_TO_SHOW_COUNT) }
             assertTrue(
                 appStore.state.pocketStoriesCategories.containsAll(
-                    listOf(otherStoriesCategory, anotherStoriesCategory)
-                )
+                    listOf(otherStoriesCategory, anotherStoriesCategory),
+                ),
             )
             assertSame(firstFilteredStories, appStore.state.pocketStories)
 
@@ -361,8 +361,8 @@ class AppStoreTest {
             every { any<AppState>().getFilteredStories(any()) } returns secondFilteredStories
             appStore.dispatch(
                 AppAction.PocketStoriesCategoriesChange(
-                    updatedCategories
-                )
+                    updatedCategories,
+                ),
             ).join()
             verify(exactly = 2) { any<AppState>().getFilteredStories(POCKET_STORIES_TO_SHOW_COUNT) }
             assertTrue(updatedCategories.containsAll(appStore.state.pocketStoriesCategories))
@@ -384,17 +384,17 @@ class AppStoreTest {
             appStore.dispatch(
                 AppAction.PocketStoriesCategoriesSelectionsChange(
                     storiesCategories = listOf(otherStoriesCategory, anotherStoriesCategory),
-                    categoriesSelected = listOf(selectedCategory)
-                )
+                    categoriesSelected = listOf(selectedCategory),
+                ),
             ).join()
             verify { any<AppState>().getFilteredStories(POCKET_STORIES_TO_SHOW_COUNT) }
             assertTrue(
                 appStore.state.pocketStoriesCategories.containsAll(
-                    listOf(otherStoriesCategory, anotherStoriesCategory)
-                )
+                    listOf(otherStoriesCategory, anotherStoriesCategory),
+                ),
             )
             assertTrue(
-                appStore.state.pocketStoriesCategoriesSelections.containsAll(listOf(selectedCategory))
+                appStore.state.pocketStoriesCategoriesSelections.containsAll(listOf(selectedCategory)),
             )
             assertSame(firstFilteredStories, appStore.state.pocketStories)
         }

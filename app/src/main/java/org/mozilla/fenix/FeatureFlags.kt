@@ -21,8 +21,7 @@ object FeatureFlags {
     /**
      * Enables the Sync Addresses feature.
      */
-<<<<<<< HEAD
-    const val syncAddressesFeature = false
+    const val syncAddressesFeature = true
 
     /**
      * Enables the onboarding sync CFR on the home screen.
@@ -38,9 +37,6 @@ object FeatureFlags {
      * Enables the first run onboarding updates.
      */
     const val showFirstRunOnboardingUpdates = false
-=======
-    const val addressesFeature = true
->>>>>>> e1281c453... Do all of Iceraven in one commit
 
     /**
      * Enables the "recent" tabs feature in the home screen.

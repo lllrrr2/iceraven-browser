@@ -181,7 +181,7 @@ class CustomizationFragment : PreferenceFragmentCompat() {
             onPreferenceChangeListener = SharedPreferenceUpdater()
         }
     }
-    
+
     companion object {
         // Used to send telemetry data about toolbar position changes
         enum class Position { TOP, BOTTOM }

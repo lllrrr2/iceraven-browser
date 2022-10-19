@@ -91,7 +91,7 @@ class TopSheetBehavior<V : View?>
         STATE_COLLAPSED,
         STATE_DRAGGING,
         STATE_SETTLING,
-        STATE_HIDDEN
+        STATE_HIDDEN,
     )
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     annotation class State
@@ -115,7 +115,7 @@ class TopSheetBehavior<V : View?>
             if (mViewRef != null && mViewRef!!.get() != null) {
                 mMinOffset =
                     (-mViewRef!!.get()!!.height).coerceAtLeast(
-                        -(mViewRef!!.get()!!.height - mPeekHeight)
+                        -(mViewRef!!.get()!!.height - mPeekHeight),
                     )
             }
         }
@@ -150,7 +150,7 @@ class TopSheetBehavior<V : View?>
     init {
         val a = context.obtainStyledAttributes(
             attrs,
-            R.styleable.BottomSheetBehavior_Layout
+            R.styleable.BottomSheetBehavior_Layout,
         )
         shapeThemingEnabled =
             a.hasValue(R.styleable.BottomSheetBehavior_Layout_shapeAppearance)
@@ -159,11 +159,11 @@ class TopSheetBehavior<V : View?>
         peekHeight = (context.resources.displayMetrics.heightPixels * PEEK_HEIGHT_RATIO).toInt()
         isHideable = a.getBoolean(
             R.styleable.BottomSheetBehavior_Layout_behavior_hideable,
-            false
+            false,
         )
         skipCollapsed = a.getBoolean(
             R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed,
-            false
+            false,
         )
         a.recycle()
         val configuration =
@@ -175,16 +175,16 @@ class TopSheetBehavior<V : View?>
         return SavedState(
             super.onSaveInstanceState(
                 parent,
-                child!!
+                child!!,
             ),
-            mState
+            mState,
         )
     }
 
     override fun onRestoreInstanceState(
         parent: CoordinatorLayout,
         child: V,
-        state: Parcelable
+        state: Parcelable,
     ) {
         val ss =
             state as SavedState
@@ -201,7 +201,7 @@ class TopSheetBehavior<V : View?>
     override fun onLayoutChild(
         parent: CoordinatorLayout,
         child: V,
-        layoutDirection: Int
+        layoutDirection: Int,
     ): Boolean {
         if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child as View)) {
             child.fitsSystemWindows = true
@@ -252,7 +252,7 @@ class TopSheetBehavior<V : View?>
     override fun onInterceptTouchEvent(
         parent: CoordinatorLayout,
         child: V,
-        event: MotionEvent
+        event: MotionEvent,
     ): Boolean {
         if (!child!!.isShown) {
             return false
@@ -300,14 +300,14 @@ class TopSheetBehavior<V : View?>
             !parent.isPointInChildBounds(
                 scroll,
                 event.x.toInt(),
-                event.y.toInt()
+                event.y.toInt(),
             ) && abs(mInitialY - event.y) > mViewDragHelper!!.touchSlop
     }
 
     override fun onTouchEvent(
         parent: CoordinatorLayout,
         child: V,
-        event: MotionEvent
+        event: MotionEvent,
     ): Boolean {
         if (!child!!.isShown) {
             return false
@@ -334,7 +334,7 @@ class TopSheetBehavior<V : View?>
             ) {
                 mViewDragHelper!!.captureChildView(
                     child,
-                    event.getPointerId(event.actionIndex)
+                    event.getPointerId(event.actionIndex),
                 )
             }
         }
@@ -346,7 +346,7 @@ class TopSheetBehavior<V : View?>
         child: V,
         directTargetChild: View,
         target: View,
-        nestedScrollAxes: Int
+        nestedScrollAxes: Int,
     ): Boolean {
         mLastNestedScrollDy = 0
         mNestedScrolled = false
@@ -359,7 +359,7 @@ class TopSheetBehavior<V : View?>
         target: View,
         dx: Int,
         dy: Int,
-        consumed: IntArray
+        consumed: IntArray,
     ) {
         val scrollingChild = mNestedScrollingChildRef!!.get()
         if (target !== scrollingChild) {
@@ -399,7 +399,7 @@ class TopSheetBehavior<V : View?>
     override fun onStopNestedScroll(
         coordinatorLayout: CoordinatorLayout,
         child: V,
-        target: View
+        target: View,
     ) {
         if (child!!.top == mMaxOffset) {
             setStateInternal(STATE_EXPANDED)
@@ -435,8 +435,8 @@ class TopSheetBehavior<V : View?>
                 child,
                 SettleRunnable(
                     child,
-                    targetState
-                )
+                    targetState,
+                ),
             )
         } else {
             setStateInternal(targetState)
@@ -449,14 +449,17 @@ class TopSheetBehavior<V : View?>
         child: V,
         target: View,
         velocityX: Float,
-        velocityY: Float
+        velocityY: Float,
     ): Boolean {
         return target === mNestedScrollingChildRef!!.get() &&
             (
                 mState != STATE_EXPANDED ||
                     super.onNestedPreFling(
-                        coordinatorLayout, child!!, target,
-                        velocityX, velocityY
+                        coordinatorLayout,
+                        child!!,
+                        target,
+                        velocityX,
+                        velocityY,
                     )
                 )
     }
@@ -508,7 +511,7 @@ class TopSheetBehavior<V : View?>
             if (mViewDragHelper!!.smoothSlideViewTo(child, child.left, top)) {
                 ViewCompat.postOnAnimation(
                     child,
-                    SettleRunnable(child, state)
+                    SettleRunnable(child, state),
                 )
             }
         }
@@ -596,7 +599,7 @@ class TopSheetBehavior<V : View?>
         @Suppress("ReturnCount")
         override fun tryCaptureView(
             child: View,
-            pointerId: Int
+            pointerId: Int,
         ): Boolean {
             if (mState == STATE_DRAGGING) {
                 return false
@@ -619,7 +622,7 @@ class TopSheetBehavior<V : View?>
             left: Int,
             top: Int,
             dx: Int,
-            dy: Int
+            dy: Int,
         ) {
             dispatchOnSlide(top)
         }
@@ -633,9 +636,10 @@ class TopSheetBehavior<V : View?>
         override fun onViewReleased(
             releasedChild: View,
             xvel: Float,
-            yvel: Float
+            yvel: Float,
         ) {
             val top: Int
+
             @State val targetState: Int
             if (yvel > 0) { // Moving up
                 top = mMaxOffset
@@ -662,8 +666,8 @@ class TopSheetBehavior<V : View?>
                     releasedChild,
                     SettleRunnable(
                         releasedChild,
-                        targetState
-                    )
+                        targetState,
+                    ),
                 )
             } else {
                 setStateInternal(targetState)
@@ -673,19 +677,19 @@ class TopSheetBehavior<V : View?>
         override fun clampViewPositionVertical(
             child: View,
             top: Int,
-            dy: Int
+            dy: Int,
         ): Int {
             return constrain(
                 top,
                 if (isHideable) -child.height else mMinOffset,
-                mMaxOffset
+                mMaxOffset,
             )
         }
 
         override fun clampViewPositionHorizontal(
             child: View,
             left: Int,
-            dx: Int
+            dx: Int,
         ): Int {
             return child.left
         }
@@ -701,14 +705,14 @@ class TopSheetBehavior<V : View?>
 
     private fun createMaterialShapeDrawable(
         context: Context,
-        attrs: AttributeSet
+        attrs: AttributeSet,
     ) {
         if (shapeThemingEnabled) {
             shapeAppearanceModelDefault = ShapeAppearanceModel.builder(
                 context,
                 attrs,
                 R.attr.bottomSheetStyle,
-                DEF_STYLE_RES
+                DEF_STYLE_RES,
             )
                 .build()
             materialShapeDrawable = MaterialShapeDrawable(shapeAppearanceModelDefault!!)
@@ -739,12 +743,13 @@ class TopSheetBehavior<V : View?>
                 mCallback!!.onSlide(
                     topSheet,
                     (top - mMinOffset).toFloat() / mPeekHeight,
-                    isOpening
+                    isOpening,
                 )
             } else {
                 mCallback!!.onSlide(
                     topSheet,
-                    (top - mMinOffset).toFloat() / (mMaxOffset - mMinOffset), isOpening
+                    (top - mMinOffset).toFloat() / (mMaxOffset - mMinOffset),
+                    isOpening,
                 )
             }
         }
@@ -752,7 +757,8 @@ class TopSheetBehavior<V : View?>
 
     private inner class SettleRunnable internal constructor(
         private val mView: View,
-        @field:State @param:State private val mTargetState: Int
+        @field:State @param:State
+        private val mTargetState: Int,
     ) :
         Runnable {
 

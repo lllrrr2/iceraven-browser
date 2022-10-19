@@ -70,6 +70,7 @@ class PagedAddonsManagerAdapter(
 ) : ListAdapter<Any, CustomViewHolder>(DifferCallback) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val logger = Logger("PagedAddonsManagerAdapter")
+
     /**
      * Represents all the add-ons that will be distributed in multiple headers like
      * enabled, recommended and unsupported, this help have the data source of the items,
@@ -106,7 +107,7 @@ class PagedAddonsManagerAdapter(
         val view = inflater.inflate(
             R.layout.mozac_feature_addons_section_unsupported_section_item,
             parent,
-            false
+            false,
         )
         val titleView = view.findViewById<TextView>(R.id.title)
         val descriptionView = view.findViewById<TextView>(R.id.description)
@@ -135,7 +136,7 @@ class PagedAddonsManagerAdapter(
             ratingAccessibleView,
             userCountView,
             addButton,
-            allowedInPrivateBrowsingLabel
+            allowedInPrivateBrowsingLabel,
         )
     }
 
@@ -156,7 +157,7 @@ class PagedAddonsManagerAdapter(
             is AddonViewHolder -> bindAddon(holder, item as Addon)
             is UnsupportedSectionViewHolder -> bindNotYetSupportedSection(
                 holder,
-                item as NotYetSupportedSection
+                item as NotYetSupportedSection,
             )
         }
     }
@@ -171,7 +172,7 @@ class PagedAddonsManagerAdapter(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun bindNotYetSupportedSection(
         holder: UnsupportedSectionViewHolder,
-        section: NotYetSupportedSection
+        section: NotYetSupportedSection,
     ) {
         val unsupportedAddons = addonsMap.values.filter { it.inUnsupportedSection() }
         val context = holder.itemView.context
@@ -182,7 +183,7 @@ class PagedAddonsManagerAdapter(
             } else {
                 context.getString(
                     R.string.mozac_feature_addons_unsupported_caption_plural,
-                    unsupportedAddons.size.toString()
+                    unsupportedAddons.size.toString(),
                 )
             }
 
@@ -199,7 +200,7 @@ class PagedAddonsManagerAdapter(
             val ratingContentDescription =
                 String.format(
                     context.getString(R.string.mozac_feature_addons_rating_content_description),
-                    it.average
+                    it.average,
                 )
             holder.ratingView.contentDescription = ratingContentDescription
             // Android RatingBar is not very accessibility-friendly, we will use non visible TextView
@@ -337,7 +338,7 @@ class PagedAddonsManagerAdapter(
         val addonSummaryTextColor: Int? = null,
         val sectionsTypeFace: Typeface? = null,
         @DrawableRes
-        val addonAllowPrivateBrowsingLabelDrawableRes: Int? = null
+        val addonAllowPrivateBrowsingLabelDrawableRes: Int? = null,
     ) {
         internal fun maybeSetSectionsTextColor(textView: TextView) {
             sectionsTextColor?.let {

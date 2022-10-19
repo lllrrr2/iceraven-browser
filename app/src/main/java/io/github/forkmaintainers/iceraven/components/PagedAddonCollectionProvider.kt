@@ -57,7 +57,7 @@ class PagedAddonCollectionProvider(
     private val context: Context,
     private val client: Client,
     private val serverURL: String = DEFAULT_SERVER_URL,
-    private val maxCacheAgeInMinutes: Long = -1
+    private val maxCacheAgeInMinutes: Long = -1,
 ) : AddonsProvider {
 
     private val logger = Logger("PagedAddonCollectionProvider")
@@ -72,11 +72,11 @@ class PagedAddonCollectionProvider(
         if (Config.channel.isNightlyOrDebug && context.settings().amoCollectionOverrideConfigured()) {
             result = context.settings().overrideAmoUser
         }
-        
-        logger.info("Determined collection account: ${result}")
+
+        logger.info("Determined collection account: $result")
         return result
     }
-    
+
     /**
      * Get the collection name we should be fetching addons from.
      */
@@ -85,8 +85,8 @@ class PagedAddonCollectionProvider(
         if (Config.channel.isNightlyOrDebug && context.settings().amoCollectionOverrideConfigured()) {
             result = context.settings().overrideAmoCollection
         }
-        
-        logger.info("Determined collection name: ${result}")
+
+        logger.info("Determined collection name: $result")
         return result
     }
 
@@ -108,22 +108,22 @@ class PagedAddonCollectionProvider(
     override suspend fun getAvailableAddons(
         allowCache: Boolean,
         readTimeoutInSeconds: Long?,
-        language: String?
+        language: String?,
     ): List<Addon> {
         val cachedAddons = if (allowCache && !cacheExpired(context)) {
             readFromDiskCache()
         } else {
             null
         }
-        
+
         val collectionAccount = getCollectionAccount()
         val collectionName = getCollectionName()
-        
+
         if (cachedAddons != null) {
-            logger.info("Providing cached list of addons for ${collectionAccount} collection ${collectionName}")
+            logger.info("Providing cached list of addons for $collectionAccount collection $collectionName")
             return cachedAddons
         } else {
-            logger.info("Fetching fresh list of addons for ${collectionAccount} collection ${collectionName}")
+            logger.info("Fetching fresh list of addons for $collectionAccount collection $collectionName")
             return getAllPages(
                 listOf(
                     serverURL,
@@ -132,9 +132,9 @@ class PagedAddonCollectionProvider(
                     collectionAccount,
                     "collections",
                     collectionName,
-                    "addons"
+                    "addons",
                 ).joinToString("/"),
-                readTimeoutInSeconds ?: DEFAULT_READ_TIMEOUT_IN_SECONDS
+                readTimeoutInSeconds ?: DEFAULT_READ_TIMEOUT_IN_SECONDS,
             ).also {
                 // Cache the JSON object before we parse out the addons
                 if (maxCacheAgeInMinutes > 0) {
@@ -164,8 +164,8 @@ class PagedAddonCollectionProvider(
             client.fetch(
                 Request(
                     url = nextURL,
-                    readTimeout = Pair(readTimeoutInSeconds, TimeUnit.SECONDS)
-                )
+                    readTimeout = Pair(readTimeoutInSeconds, TimeUnit.SECONDS),
+                ),
             )
                 .use { response ->
                     if (!response.isSuccess) {
@@ -201,7 +201,7 @@ class PagedAddonCollectionProvider(
         var bitmap: Bitmap? = null
         if (addon.iconUrl != "") {
             client.fetch(
-                Request(url = addon.iconUrl.sanitizeURL())
+                Request(url = addon.iconUrl.sanitizeURL()),
             ).use { response ->
                 if (response.isSuccess) {
                     response.body.useStream {
@@ -288,7 +288,7 @@ internal fun JSONObject.toAddons(): Addon {
             iconUrl = getSafeString("icon_url"),
             siteUrl = getSafeString("url"),
             rating = getRating(),
-            defaultLocale = getSafeString("default_locale").ifEmpty { Addon.DEFAULT_LOCALE }
+            defaultLocale = getSafeString("default_locale").ifEmpty { Addon.DEFAULT_LOCALE },
         )
     }
 }
@@ -298,7 +298,7 @@ internal fun JSONObject.getRating(): Addon.Rating? {
     return if (jsonRating != null) {
         Addon.Rating(
             reviews = jsonRating.optInt("count"),
-            average = jsonRating.optDouble("average").toFloat()
+            average = jsonRating.optDouble("average").toFloat(),
         )
     } else {
         null
@@ -357,7 +357,7 @@ internal fun JSONObject.getAuthors(): List<Addon.Author> {
             id = authorJson.getSafeString("id"),
             name = authorJson.getSafeString("name"),
             username = authorJson.getSafeString("username"),
-            url = authorJson.getSafeString("url")
+            url = authorJson.getSafeString("url"),
         )
     }
 }
