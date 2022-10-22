@@ -1,10 +1,15 @@
 ---
+about:
+  description: Nimbus Feature Manifest for Fenix (Firefox Android)
+  kotlin:
+    package: org.mozilla.fenix
+    class: .nimbus.FxNimbus
 channels:
   - release
-  - forkRelease
   - beta
   - nightly
   - developer
+  - forkRelease
 features:
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
@@ -37,41 +42,6 @@ features:
         value: {
           "sections-enabled": {
             "pocket-sponsored-stories": true,
-          }
-        }
-  onboarding:
-    description: The onboarding features displayed on homescreen.
-    variables:
-      sections-enabled:
-        description: "This property provides a lookup table of whether or not the given section should be enabled."
-        type: Map<OnboardingSection, Boolean>
-        default:
-          {
-            "sync-cfr": false,
-            "wallpapers": false,
-            "home-onboarding-dialog": false,
-            "jump-back-in-cfr": false,
-            "first-run-onboarding": false,
-          }
-    defaults:
-      - channel: nightly
-        value: {
-          "sections-enabled": {
-            "sync-cfr": false,
-            "wallpapers": false,
-            "home-onboarding-dialog": false,
-            "jump-back-in-cfr": false,
-            "first-run-onboarding": false,
-          }
-        }
-      - channel: developer
-        value: {
-          "sections-enabled": {
-            "sync-cfr": false,
-            "wallpapers": true,
-            "home-onboarding-dialog": false,
-            "jump-back-in-cfr": false,
-            "first-run-onboarding": false,
           }
         }
   nimbus-validation:
@@ -220,11 +190,10 @@ features:
         type: Map<MR2022Section, Boolean>
         default:
           {
-            "home-onboarding-dialog-new-users": false,
-            "home-onboarding-dialog-existing-users": false,
-            "sync-cfr": false,
-            "wallpapers-selection-tool": false,
-            "jump-back-in-cfr": false,
+            "home-onboarding-dialog-existing-users": true,
+            "sync-cfr": true,
+            "wallpapers-selection-tool": true,
+            "jump-back-in-cfr": true,
             "tcp-cfr": false,
             "tcp-feature": false
           }
@@ -232,13 +201,10 @@ features:
       - channel: developer
         value: {
           "sections-enabled": {
-            "home-onboarding-dialog-new-users": true,
             "home-onboarding-dialog-existing-users": true,
             "sync-cfr": true,
             "wallpapers-selection-tool": true,
             "jump-back-in-cfr": true,
-            "tcp-cfr": true,
-            "tcp-feature": true
           }
         }
 
@@ -254,17 +220,6 @@ features:
         value:
           enabled: false
 
-  engine-settings:
-    description: Contains a set of settings for controlling the web engine configurations.
-    variables:
-      tabs-prioritization-enabled:
-        description: If true, enables tabs prioritization feature.
-        type: Boolean
-        default: true
-      total-cookie-protection-enabled:
-        description: If true, enables the total cookie protection in all browsing modes.
-        type: Boolean
-        default: false
 types:
   objects:
     MessageData:
@@ -363,26 +318,11 @@ types:
           description: A setting in the settings screen.
         homescreen-banner:
           description: A banner in the homescreen.
-    OnboardingSection:
-      description: The identifiers for the sections of the onboarding.
-      variants:
-        sync-cfr:
-          description: Sync onboarding CFR.
-        wallpapers:
-          description: Wallpapers onboarding dialog.
-        home-onboarding-dialog:
-          description: Home onboarding dialog for upgraded users.
-        jump-back-in-cfr:
-          description: Jump back in onboarding CFR.
-        first-run-onboarding:
-          description: First run onboarding page updates.
     MR2022Section:
       description: The identifiers for the sections of the MR 2022.
       variants:
         home-onboarding-dialog-existing-users:
           description: Home onboarding dialog for upgraded users.
-        home-onboarding-dialog-new-users:
-          description: Home onboarding dialog for new users.
         sync-cfr:
           description: CFR for the first time you see a synced tab on the home screen.
         wallpapers-selection-tool:
