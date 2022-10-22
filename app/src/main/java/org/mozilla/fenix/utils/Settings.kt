@@ -274,29 +274,17 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val isTelemetryEnabled by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_telemetry),
-<<<<<<< HEAD
-        default = true,
-=======
-        default = false
->>>>>>> e1281c453... Do all of Iceraven in one commit
+        default = false,
     )
 
     var isMarketingTelemetryEnabled by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_marketing_telemetry),
-<<<<<<< HEAD
-        default = !Config.channel.isMozillaOnline,
-=======
-        default = false
->>>>>>> e1281c453... Do all of Iceraven in one commit
+        default = false,
     )
 
     var isExperimentationEnabled by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_experimentation),
-<<<<<<< HEAD
-        default = true,
-=======
-        default = false
->>>>>>> e1281c453... Do all of Iceraven in one commit
+        default = false,
     )
 
     var isOverrideTPPopupsForPerformanceTest = false
@@ -736,12 +724,12 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var shouldStripUrl by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_strip_url),
-        default = true
+        default = true,
     )
 
     var shouldRelinquishMemoryUnderPressure by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_relinquish_memory_under_pressure),
-        default = true
+        default = true,
     )
 
     /**
@@ -1145,12 +1133,12 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val customAddonsAccount by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_addons_custom_account),
-        BuildConfig.AMO_COLLECTION_USER
+        BuildConfig.AMO_COLLECTION_USER,
     )
 
     val customAddonsCollection by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_addons_custom_collection),
-        BuildConfig.AMO_COLLECTION_NAME
+        BuildConfig.AMO_COLLECTION_NAME,
     )
 
     var mobileBookmarksSize by intPreference(

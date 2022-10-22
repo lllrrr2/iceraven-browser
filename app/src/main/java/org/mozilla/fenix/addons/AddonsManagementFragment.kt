@@ -101,15 +101,17 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
         searchView.queryHint = getString(R.string.addons_search_hint)
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                return searchAddons(query.trim())
-            }
+        searchView.setOnQueryTextListener(
+            object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    return searchAddons(query.trim())
+                }
 
-            override fun onQueryTextChange(newText: String): Boolean {
-                return searchAddons(newText.trim())
-            }
-        },)
+                override fun onQueryTextChange(newText: String): Boolean {
+                    return searchAddons(newText.trim())
+                }
+            },
+        )
     }
 
     private fun searchAddons(addonNameSubStr: String): Boolean {

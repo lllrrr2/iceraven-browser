@@ -10,7 +10,7 @@ enum class ReleaseChannel {
     Nightly,
     Beta,
     Release,
-    ForkRelease
+    ForkRelease,
     ;
 
     val isReleased: Boolean
