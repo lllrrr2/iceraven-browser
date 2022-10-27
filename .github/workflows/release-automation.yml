@@ -1,11 +1,12 @@
 name: Release Automation
 on:
-  create:
+  push:
+    tags:
+      - 'iceraven-*'
 jobs:
   release-automation:
     name: Create Release
     runs-on: ubuntu-latest
-    if: "contains(toJSON(github.event.ref_type), 'tag') && contains(toJSON(github.event.ref), 'iceraven')"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
