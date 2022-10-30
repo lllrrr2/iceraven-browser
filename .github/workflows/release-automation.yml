@@ -22,6 +22,10 @@ jobs:
         run: ./automation/iceraven/install-sdk.sh
       - name: Build forkRelease variant of app
         uses: eskatos/gradle-command-action@v1
+        env:
+          # Try to stop the daemon from magically vanishing.
+          # See <https://stackoverflow.com/a/70010526>
+          GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g"
         with:
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
