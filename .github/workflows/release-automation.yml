@@ -20,12 +20,14 @@ jobs:
           java-version: 11
       - name: Install Android SDK with pieces Gradle skips
         run: ./automation/iceraven/install-sdk.sh
+      - name: Inspect memory
+        run: free -m
       - name: Build forkRelease variant of app
         uses: eskatos/gradle-command-action@v1
         env:
-          # Try to stop the daemon from magically vanishing.
-          # See <https://stackoverflow.com/a/70010526>
-          GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g"
+          # Try to stop the daemon from magically vanishing by adding random memory-related arguments.
+          # See <https://stackoverflow.com/a/70010526> and <https://stackoverflow.com/a/70756876>
+          GRADLE_OPTS: --stacktrace -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xms4096m -Xmx8192m -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dev/stderr"
         with:
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
