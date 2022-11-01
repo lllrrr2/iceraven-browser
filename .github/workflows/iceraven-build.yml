@@ -30,12 +30,12 @@ jobs:
         env:
           # Try to stop the daemon from magically vanishing by adding random memory-related arguments.
           # See <https://stackoverflow.com/a/70010526> and <https://stackoverflow.com/a/70756876>
-          GRADLE_OPTS: --stacktrace -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xms4096m -Xmx8192m -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dev/stderr"
+          GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xms4096m -Xmx8192m -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dev/stderr"
         with:
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           configuration-cache-enabled: true
-          arguments: app:assembleForkRelease -PversionName=${{ env.VERSION_NAME }}
+          arguments: app:assembleForkRelease -PversionName=${{ env.VERSION_NAME }} --stacktrace 
       
       - name: Create signed APKs
         if: "contains(toJSON(github.event.ref_type), 'tag') && contains(toJSON(github.event.ref), 'iceraven')"
