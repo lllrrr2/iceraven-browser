@@ -102,32 +102,12 @@ class Components(private val context: Context) {
     }
 
     val addonCollectionProvider by lazyMonitored {
-        // Check if we have a customized (overridden) AMO collection (supported in Nightly & Beta)
-        if (FeatureFlags.customExtensionCollectionFeature && context.settings().amoCollectionOverrideConfigured()) {
-            AddonCollectionProvider(
-                context,
-                core.client,
-                collectionUser = context.settings().overrideAmoUser,
-                collectionName = context.settings().overrideAmoCollection,
-            )
-        }
-        // Use build config otherwise
-        else if (!BuildConfig.AMO_COLLECTION_USER.isNullOrEmpty() &&
-            !BuildConfig.AMO_COLLECTION_NAME.isNullOrEmpty()
-        ) {
-            AddonCollectionProvider(
-                context,
-                core.client,
-                serverURL = BuildConfig.AMO_SERVER_URL,
-                collectionUser = BuildConfig.AMO_COLLECTION_USER,
-                collectionName = BuildConfig.AMO_COLLECTION_NAME,
-                maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE,
-            )
-        }
-        // Fall back to defaults
-        else {
-            AddonCollectionProvider(context, core.client, maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE)
-        }
+        PagedAddonCollectionProvider(
+            context,
+            core.client,
+            serverURL = BuildConfig.AMO_SERVER_URL,
+            maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE,
+        )
     }
 
     @Suppress("MagicNumber")
