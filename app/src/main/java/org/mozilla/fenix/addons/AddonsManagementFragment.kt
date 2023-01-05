@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuItem
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,10 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.widget.SearchView
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.isVisible
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -69,16 +73,6 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
     // downloaded for the non-suspending search function
     private var addons: List<Addon>? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        logger.info("Creating view for AddonsManagementFragment")
-        setHasOptionsMenu(true)
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
     private var installExternalAddonComplete: Boolean
         set(value) {
             arguments?.putBoolean(BUNDLE_KEY_INSTALL_EXTERNAL_ADDON_COMPLETE, value)
@@ -90,28 +84,40 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         logger.info("View created for AddonsManagementFragment")
         super.onViewCreated(view, savedInstanceState)
+        setupMenu()
         binding = FragmentAddOnsManagementBinding.bind(view)
         bindRecyclerView()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.addons_menu, menu)
-        val searchItem = menu.findItem(R.id.search)
-        val searchView: SearchView = searchItem.actionView as SearchView
-        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.queryHint = getString(R.string.addons_search_hint)
+    private fun setupMenu() {
+        val menuHost: MenuHost = requireActivity()
 
-        searchView.setOnQueryTextListener(
-            object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    return searchAddons(query.trim())
-                }
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+                inflater.inflate(R.menu.addons_menu, menu)
+                val searchItem = menu.findItem(R.id.search)
+                val searchView: SearchView = searchItem.actionView as SearchView
+                searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+                searchView.queryHint = getString(R.string.addons_search_hint)
 
-                override fun onQueryTextChange(newText: String): Boolean {
-                    return searchAddons(newText.trim())
-                }
-            },
-        )
+                searchView.setOnQueryTextListener(
+                    object : SearchView.OnQueryTextListener {
+                        override fun onQueryTextSubmit(query: String): Boolean {
+                            return searchAddons(query.trim())
+                        }
+
+                        override fun onQueryTextChange(newText: String): Boolean {
+                            return searchAddons(newText.trim())
+                        }
+                    },
+                )
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Handle the menu selection
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun searchAddons(addonNameSubStr: String): Boolean {
