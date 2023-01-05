@@ -16,8 +16,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.getSystemService
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
@@ -38,7 +40,6 @@ import mozilla.components.concept.storage.BookmarkNodeType
 import mozilla.components.lib.state.ext.consumeFrom
 import mozilla.components.support.base.feature.UserInteractionHandler
 import mozilla.telemetry.glean.private.NoExtras
-import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.GleanMetrics.BookmarksManagement
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavHostActivity
@@ -61,7 +62,7 @@ import org.mozilla.fenix.utils.allowUndo
  * The screen that displays the user's bookmark list in their Library.
  */
 @Suppress("TooManyFunctions", "LargeClass")
-class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHandler {
+class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHandler, MenuProvider {
 
     private lateinit var bookmarkStore: BookmarkFragmentStore
     private lateinit var bookmarkView: BookmarkView
@@ -104,6 +105,7 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 deleteBookmarkNodes = ::deleteMulti,
                 deleteBookmarkFolder = ::showRemoveFolderDialog,
                 showTabTray = ::showTabTray,
+                warnLargeOpenAll = ::warnLargeOpenAll,
                 settings = requireComponents.settings,
             ),
         )
@@ -134,6 +136,9 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         val accountManager = requireComponents.backgroundServices.accountManager
         consumeFrom(bookmarkStore) {
             bookmarkView.update(it)
@@ -145,11 +150,6 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
             bookmarkView.binding.bookmarkFoldersSignIn.isVisible =
                 it.tree?.guid == BookmarkRoot.Root.id && accountManager.authenticatedAccount() == null
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onResume() {
@@ -176,15 +176,11 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         when (val mode = bookmarkStore.state.mode) {
             is BookmarkFragmentState.Mode.Normal -> {
                 if (mode.showMenu) {
                     inflater.inflate(R.menu.bookmarks_menu, menu)
-                }
-
-                if (!FeatureFlags.historyImprovementFeatures) {
-                    menu.findItem(R.id.bookmark_search)?.isVisible = false
                 }
             }
             is BookmarkFragmentState.Mode.Selecting -> {
@@ -205,7 +201,7 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.bookmark_search -> {
                 bookmarkInteractor.onSearch()
@@ -251,7 +247,8 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 deleteMulti(bookmarkStore.state.mode.selectedItems)
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            // other options are not handled by this menu provider
+            else -> false
         }
     }
 
@@ -271,11 +268,11 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
         return bookmarkView.onBackPressed()
     }
 
-    private suspend fun loadBookmarkNode(guid: String): BookmarkNode? = withContext(IO) {
+    private suspend fun loadBookmarkNode(guid: String, recursive: Boolean = false): BookmarkNode? = withContext(IO) {
         // Only runs if the fragment is attached same as [runIfFragmentIsAttached]
         context?.let {
             requireContext().bookmarkStorage
-                .getTree(guid, false)
+                .getTree(guid, recursive)
                 ?.let { desktopFolders.withOptionalDesktopFolders(it) }
         }
     }
@@ -290,6 +287,27 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 val rootNode = node - pendingBookmarksToDelete
                 bookmarkInteractor.onBookmarksChanged(rootNode)
             }
+    }
+
+    private fun warnLargeOpenAll(numberOfTabs: Int, function: () -> (Unit)) {
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle(String.format(context.getString(R.string.open_all_warning_title), numberOfTabs))
+            setMessage(context.getString(R.string.open_all_warning_message, context.getString(R.string.app_name)))
+            setPositiveButton(
+                R.string.open_all_warning_confirm,
+            ) { dialog, _ ->
+                function()
+                dialog.dismiss()
+            }
+            setNegativeButton(
+                R.string.open_all_warning_cancel,
+            ) { dialog: DialogInterface, _ ->
+                dialog.dismiss()
+            }
+            setCancelable(false)
+            create()
+            show()
+        }
     }
 
     private fun deleteMulti(

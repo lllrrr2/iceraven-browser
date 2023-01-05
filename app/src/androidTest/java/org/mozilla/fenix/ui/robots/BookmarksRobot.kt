@@ -138,8 +138,8 @@ class BookmarksRobot {
         mDevice.waitNotNull(Until.findObject(By.text(childFolderName)), waitingTime)
     }
 
-    fun verifySignInToSyncButton() =
-        signInToSyncButton().check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    fun verifySyncSignInButton() =
+        syncSignInButton().check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
     fun verifyDeleteFolderConfirmationMessage() = assertDeleteFolderConfirmationMessage()
 
@@ -150,10 +150,19 @@ class BookmarksRobot {
             .click()
     }
 
-    fun createFolder(name: String) {
+    fun createFolder(name: String, parent: String? = null) {
         clickAddFolderButton()
         addNewFolderName(name)
+        if (!parent.isNullOrBlank()) {
+            setParentFolder(parent)
+        }
         saveNewFolder()
+    }
+
+    fun setParentFolder(parentName: String) {
+        clickParentFolderSelector()
+        selectFolder(parentName)
+        navigateUp()
     }
 
     fun clickAddFolderButton() {
@@ -244,7 +253,7 @@ class BookmarksRobot {
         }
 
         fun clickSingInToSyncButton(interact: SettingsTurnOnSyncRobot.() -> Unit): SettingsTurnOnSyncRobot.Transition {
-            signInToSyncButton().click()
+            syncSignInButton().click()
 
             SettingsTurnOnSyncRobot().interact()
             return SettingsTurnOnSyncRobot.Transition()
@@ -308,7 +317,7 @@ private fun saveBookmarkButton() = onView(withId(R.id.save_bookmark_button))
 
 private fun deleteInEditModeButton() = onView(withId(R.id.delete_bookmark_button))
 
-private fun signInToSyncButton() = onView(withId(R.id.bookmark_folders_sign_in))
+private fun syncSignInButton() = onView(withId(R.id.bookmark_folders_sign_in))
 
 private fun assertBookmarksView() {
     onView(

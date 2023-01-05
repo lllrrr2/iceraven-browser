@@ -7,7 +7,7 @@ package org.mozilla.fenix.components.toolbar
 import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.PRIVATE
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -352,7 +352,7 @@ open class DefaultToolbarMenu(
     private fun syncMenuItem(): BrowserMenuImageText? {
         val syncItemTitle =
             if (context.components.backgroundServices.accountManagerAvailableQueue.isReady()) {
-                accountManager.accountProfileEmail ?: context.getString(R.string.sync_menu_sign_in)
+                accountManager.accountProfileEmail ?: context.getString(R.string.sync_menu_sync_and_save_data)
             } else {
                 null
             }

@@ -12,7 +12,6 @@ import org.junit.Test
 import org.mozilla.fenix.R
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.helpers.TestHelper.getStringResource
@@ -22,21 +21,20 @@ import org.mozilla.fenix.ui.robots.navigationToolbar
 class CrashReportingTest {
     private lateinit var mDevice: UiDevice
     private lateinit var mockWebServer: MockWebServer
-    private val featureSettingsHelper = FeatureSettingsHelper()
     private val tabCrashMessage = getStringResource(R.string.tab_crash_title_2)
 
     @get:Rule
     val activityTestRule = AndroidComposeTestRule(
-        HomeActivityIntentTestRule(),
-        { it.activity },
-    )
+        HomeActivityIntentTestRule(
+            isPocketEnabled = false,
+            isJumpBackInCFREnabled = false,
+            isWallpaperOnboardingEnabled = false,
+            isTCPCFREnabled = false,
+        ),
+    ) { it.activity }
 
     @Before
     fun setUp() {
-        featureSettingsHelper.setJumpBackCFREnabled(false)
-        featureSettingsHelper.setPocketEnabled(false)
-        featureSettingsHelper.setShowWallpaperOnboarding(false)
-
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mockWebServer = MockWebServer().apply {
             dispatcher = AndroidAssetDispatcher()
@@ -47,7 +45,6 @@ class CrashReportingTest {
     @After
     fun tearDown() {
         mockWebServer.shutdown()
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @Test
@@ -77,7 +74,6 @@ class CrashReportingTest {
         }
     }
 
-    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/25029")
     @SmokeTest
     @Test
     fun useAppWhileTabIsCrashedTest() {
@@ -110,7 +106,6 @@ class CrashReportingTest {
 
     @SmokeTest
     @Test
-    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun privateBrowsingUseAppWhileTabIsCrashedTest() {
         val firstWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
         val secondWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 2)
@@ -124,7 +119,6 @@ class CrashReportingTest {
         }.openNewTab {
         }.submitQuery(secondWebPage.url.toString()) {
             waitForPageToLoad()
-            verifyPageContent("Page content: 2")
         }
 
         navigationToolbar {

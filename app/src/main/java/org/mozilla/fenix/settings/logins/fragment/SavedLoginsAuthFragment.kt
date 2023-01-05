@@ -146,7 +146,7 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
                 .getString(R.string.preferences_passwords_sync_logins_across_devices),
             loggedInTitle = requireContext()
                 .getString(R.string.preferences_passwords_sync_logins),
-            onSignInToSyncClicked = {
+            onSyncSignInClicked = {
                 val directions =
                     SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToTurnOnSyncFragment()
                 findNavController().navigate(directions)
@@ -224,10 +224,12 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
      * Called when authentication succeeds.
      */
     private fun navigateToSavedLoginsFragment() {
-        Logins.openLogins.record(NoExtras())
-        val directions =
-            SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToLoginsListFragment()
-        findNavController().navigate(directions)
+        if (findNavController().currentDestination?.id == R.id.savedLoginsAuthFragment) {
+            Logins.openLogins.record(NoExtras())
+            val directions =
+                SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToLoginsListFragment()
+            findNavController().navigate(directions)
+        }
     }
 
     private fun navigateToSaveLoginSettingFragment() {

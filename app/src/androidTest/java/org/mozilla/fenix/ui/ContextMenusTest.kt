@@ -9,13 +9,11 @@ import androidx.test.uiautomator.UiDevice
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
@@ -42,13 +40,11 @@ class ContextMenusTest {
     private lateinit var mockWebServer: MockWebServer
 
     @get:Rule
-    val activityIntentTestRule = HomeActivityIntentTestRule()
+    val activityIntentTestRule = HomeActivityIntentTestRule.withDefaultSettingsOverrides()
 
     @Rule
     @JvmField
     val retryTestRule = RetryTestRule(3)
-
-    private val featureSettingsHelper = FeatureSettingsHelper()
 
     @Before
     fun setUp() {
@@ -58,19 +54,15 @@ class ContextMenusTest {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
-
-        featureSettingsHelper.setTCPCFREnabled(false)
     }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @SmokeTest
     @Test
-    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun verifyContextOpenLinkNewTab() {
         val pageLinks =
             TestAssetHelper.getGenericAsset(mockWebServer, 4)
@@ -80,7 +72,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("Link 1")
+            longClickLink("Link 1")
             verifyLinkContextMenuItems(genericURL.url)
             clickContextOpenLinkInNewTab()
             verifySnackBarText("New tab opened")
@@ -95,7 +87,6 @@ class ContextMenusTest {
 
     @SmokeTest
     @Test
-    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun verifyContextOpenLinkPrivateTab() {
         val pageLinks =
             TestAssetHelper.getGenericAsset(mockWebServer, 4)
@@ -105,7 +96,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("Link 2")
+            longClickLink("Link 2")
             verifyLinkContextMenuItems(genericURL.url)
             clickContextOpenLinkInPrivateTab()
             verifySnackBarText("New private tab opened")
@@ -127,7 +118,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("Link 3")
+            longClickLink("Link 3")
             verifyLinkContextMenuItems(genericURL.url)
             clickContextCopyLink()
             verifySnackBarText("Link copied to clipboard")
@@ -147,7 +138,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("Link 1")
+            longClickLink("Link 1")
             verifyLinkContextMenuItems(genericURL.url)
             clickContextShareLink(genericURL.url) // verify share intent is matched with associated URL
         }
@@ -163,7 +154,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("test_link_image")
+            longClickLink("test_link_image")
             verifyLinkImageContextMenuItems(imageResource.url)
             clickContextOpenImageNewTab()
             verifySnackBarText("New tab opened")
@@ -182,7 +173,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("test_link_image")
+            longClickLink("test_link_image")
             verifyLinkImageContextMenuItems(imageResource.url)
             clickContextCopyImageLocation()
             verifySnackBarText("Link copied to clipboard")
@@ -202,7 +193,7 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("test_link_image")
+            longClickLink("test_link_image")
             verifyLinkImageContextMenuItems(imageResource.url)
             clickContextSaveImage()
         }
@@ -215,7 +206,6 @@ class ContextMenusTest {
         }
     }
 
-    @Ignore("Failing with frequent ANR: https://bugzilla.mozilla.org/show_bug.cgi?id=1764605")
     @Test
     fun verifyContextMixedVariations() {
         val pageLinks =
@@ -228,13 +218,13 @@ class ContextMenusTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(pageLinks.url) {
             mDevice.waitForIdle()
-            longClickMatchingText("Link 1")
+            longClickLink("Link 1")
             verifyLinkContextMenuItems(genericURL.url)
             dismissContentContextMenu(genericURL.url)
-            longClickMatchingText("test_link_image")
+            longClickLink("test_link_image")
             verifyLinkImageContextMenuItems(imageResource.url)
             dismissContentContextMenu(imageResource.url)
-            longClickMatchingText("test_no_link_image")
+            longClickLink("test_no_link_image")
             verifyNoLinkImageContextMenuItems(imageResource.url)
         }
     }
@@ -246,7 +236,7 @@ class ContextMenusTest {
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(genericURL.url) {
-            longClickMatchingText(genericURL.content)
+            longClickLink(genericURL.content)
         }.clickShareSelectedText {
             verifyAndroidShareLayout()
         }

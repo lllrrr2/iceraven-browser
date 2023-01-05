@@ -12,6 +12,14 @@ import mozilla.components.support.locale.LocaleManager.getSystemDefault
  * A single source for setting feature flags that are mostly based on build type.
  */
 object FeatureFlags {
+
+    /**
+     * Enables custom extension collection feature,
+     * This feature does not only depend on this flag. It requires the AMO collection override to
+     * be enabled which is behind the Secret Settings.
+     * */
+    val customExtensionCollectionFeature = Config.channel.isNightlyOrDebug || Config.channel.isBeta
+
     /**
      * Pull-to-refresh allows you to pull the web content down far enough to have the page to
      * reload.
@@ -59,11 +67,6 @@ object FeatureFlags {
     const val inactiveTabs = true
 
     /**
-     * Allows tabs to be dragged around as long as tab groups are disabled
-     */
-    val tabReorderingFeature = Config.channel.isNightlyOrDebug
-
-    /**
      * Show Pocket recommended stories on home.
      */
     fun isPocketRecommendationsFeatureEnabled(context: Context): Boolean {
@@ -83,11 +86,6 @@ object FeatureFlags {
      * Enables showing the homescreen onboarding card.
      */
     const val showHomeOnboarding = true
-
-    /**
-     * Enables history improvement features.
-     */
-    const val historyImprovementFeatures = true
 
     /**
      * Enables the Task Continuity enhancements.
@@ -118,4 +116,16 @@ object FeatureFlags {
      * Enables the wallpaper v2 enhancements.
      */
     const val wallpaperV2Enabled = true
+
+    /**
+     * Enables the save to PDF feature.
+     */
+    const val saveToPDF = true
+
+    /**
+     * Enables storage maintenance feature.
+     *
+     * Feature flag tracking: https://github.com/mozilla-mobile/fenix/issues/27759
+     * */
+    val storageMaintenanceFeature = Config.channel.isNightlyOrDebug
 }

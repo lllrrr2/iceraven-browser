@@ -17,7 +17,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
@@ -36,7 +38,6 @@ import mozilla.components.service.fxa.sync.SyncReason
 import mozilla.components.support.base.feature.UserInteractionHandler
 import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.BrowserDirection
-import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavHostActivity
 import org.mozilla.fenix.R
@@ -57,7 +58,7 @@ import org.mozilla.fenix.utils.allowUndo
 import org.mozilla.fenix.GleanMetrics.History as GleanHistory
 
 @SuppressWarnings("TooManyFunctions", "LargeClass")
-class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
+class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler, MenuProvider {
     private lateinit var historyStore: HistoryFragmentStore
     private lateinit var historyInteractor: HistoryInteractor
     private lateinit var historyProvider: DefaultPagedHistoryProvider
@@ -154,8 +155,6 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
         historyProvider = DefaultPagedHistoryProvider(requireComponents.core.historyStorage)
 
         GleanHistory.opened.record(NoExtras())
-
-        setHasOptionsMenu(true)
     }
 
     private fun deleteSnackbar(
@@ -186,6 +185,7 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         consumeFrom(historyStore) {
             historyView.update(it)
@@ -212,7 +212,7 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
         (activity as NavHostActivity).getSupportActionBarAndInflateIfNecessary().show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         if (historyStore.state.mode is HistoryFragmentState.Mode.Editing) {
             inflater.inflate(R.menu.history_select_multi, menu)
             menu.findItem(R.id.share_history_multi_select)?.isVisible = true
@@ -223,13 +223,9 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
         } else {
             inflater.inflate(R.menu.history_menu, menu)
         }
-
-        if (!FeatureFlags.historyImprovementFeatures) {
-            menu.findItem(R.id.history_search)?.isVisible = false
-        }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+    override fun onMenuItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.share_history_multi_select -> {
             val selectedHistory = historyStore.state.mode.selectedItems
             val shareTabs = mutableListOf<ShareData>()
@@ -287,7 +283,6 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
             true
         }
         R.id.history_search -> {
-            GleanHistory.searchIconTapped.record(NoExtras())
             historyInteractor.onSearch()
             true
         }
@@ -295,7 +290,8 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
             historyInteractor.onDeleteTimeRange()
             true
         }
-        else -> super.onOptionsItemSelected(item)
+        // other options are not handled by this menu provider
+        else -> false
     }
 
     private fun showTabTray() {

@@ -41,6 +41,7 @@ class BookmarkFragmentInteractor(
     }
 
     override fun onSearch() {
+        BookmarksManagement.searchIconTapped.record(NoExtras())
         bookmarksController.handleSearch()
     }
 
@@ -77,6 +78,16 @@ class BookmarkFragmentInteractor(
             bookmarksController.handleOpeningBookmark(item, BrowsingMode.Private)
             BookmarksManagement.openInPrivateTab.record(NoExtras())
         }
+    }
+
+    override fun onOpenAllInNewTabs(folder: BookmarkNode) {
+        require(folder.type == BookmarkNodeType.FOLDER)
+        bookmarksController.handleOpeningFolderBookmarks(folder, BrowsingMode.Normal)
+    }
+
+    override fun onOpenAllInPrivateTabs(folder: BookmarkNode) {
+        require(folder.type == BookmarkNodeType.FOLDER)
+        bookmarksController.handleOpeningFolderBookmarks(folder, BrowsingMode.Private)
     }
 
     override fun onDelete(nodes: Set<BookmarkNode>) {

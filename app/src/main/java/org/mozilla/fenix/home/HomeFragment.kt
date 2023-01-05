@@ -255,7 +255,7 @@ class HomeFragment : Fragment() {
         if (requireContext().settings().isExperimentationEnabled) {
             messagingFeature.set(
                 feature = MessagingFeature(
-                    store = requireComponents.appStore,
+                    appStore = requireComponents.appStore,
                 ),
                 owner = viewLifecycleOwner,
                 view = binding.root,
@@ -266,7 +266,7 @@ class HomeFragment : Fragment() {
             topSitesFeature.set(
                 feature = TopSitesFeature(
                     view = DefaultTopSitesView(
-                        store = components.appStore,
+                        appStore = components.appStore,
                         settings = components.settings,
                     ),
                     storage = components.core.topSitesStorage,
@@ -994,22 +994,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.wordmarkText.imageTintList = tintColor
-
-        // Need to preemptively apply the new theme to the private browsing button drawable
-        // See https://github.com/mozilla-mobile/fenix/issues/26644#issuecomment-1254961616
-        (activity as? HomeActivity)?.themeManager?.let { themeManager ->
-            with(binding.privateBrowsingButton) {
-                val drawable = VectorDrawableCompat.create(
-                    resources,
-                    R.drawable.private_browsing_button,
-                    resources.newTheme().apply {
-                        applyStyle(themeManager.currentThemeResource, true)
-                    },
-                )
-                setImageDrawable(drawable)
-                imageTintList = tintColor
-            }
-        }
+        binding.privateBrowsingButton.imageTintList = tintColor
     }
 
     private fun observeWallpaperUpdates() {

@@ -1,7 +1,7 @@
 queue_rules:
   - name: default
     conditions:
-      - status-success=pr-complete
+      - status-success=complete-pr
 pull_request_rules:
   - name: Resolve conflict
     conditions:
@@ -110,7 +110,7 @@ pull_request_rules:
   - name: Needs landing - Squash
     conditions:
       - check-success=pr-complete
-      - label=pr:needs-landing-squashed 
+      - label=pr:needs-landing-squashed
       - "#approved-reviews-by>=1"
       - -draft
       - label!=pr:work-in-progress

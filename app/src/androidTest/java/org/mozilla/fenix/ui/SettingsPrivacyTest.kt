@@ -13,13 +13,11 @@ import androidx.test.uiautomator.UiDevice
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.R
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.helpers.TestAssetHelper.getStorageTestAsset
@@ -48,10 +46,9 @@ class SettingsPrivacyTest {
     private lateinit var mDevice: UiDevice
     private lateinit var mockWebServer: MockWebServer
     private val pageShortcutName = generateRandomString(5)
-    private val featureSettingsHelper = FeatureSettingsHelper()
 
     @get:Rule
-    val activityTestRule = HomeActivityIntentTestRule(skipOnboarding = true)
+    val activityTestRule = HomeActivityIntentTestRule.withDefaultSettingsOverrides(skipOnboarding = true)
 
     @Before
     fun setUp() {
@@ -60,11 +57,6 @@ class SettingsPrivacyTest {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
-
-        featureSettingsHelper.setJumpBackCFREnabled(false)
-        featureSettingsHelper.setTCPCFREnabled(false)
-        featureSettingsHelper.setShowWallpaperOnboarding(false)
-        featureSettingsHelper.disablePwaCFR(true)
 
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
             val autofillManager: AutofillManager =
@@ -76,7 +68,6 @@ class SettingsPrivacyTest {
     @After
     fun tearDown() {
         mockWebServer.shutdown()
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     // Walks through settings privacy menu and sub-menus to ensure all items are present
@@ -358,7 +349,6 @@ class SettingsPrivacyTest {
     }
 
     @Test
-    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun launchPageShortcutInPrivateModeTest() {
         val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
@@ -389,7 +379,6 @@ class SettingsPrivacyTest {
         }
     }
 
-    @Ignore("Failing with frequent ANR: https://bugzilla.mozilla.org/show_bug.cgi?id=1764605")
     @Test
     fun launchLinksInPrivateToggleOffStateDoesntChangeTest() {
         val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
@@ -624,9 +613,13 @@ class SettingsPrivacyTest {
     @SmokeTest
     @Test
     fun deleteCookiesTest() {
+        val genericPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
         val cookiesTestPage = getStorageTestAsset(mockWebServer, "storage_write.html").url
 
+        // Browsing a generic page to allow GV to load on a fresh run
         navigationToolbar {
+        }.enterURLAndEnterToBrowser(genericPage.url) {
+        }.openNavigationToolbar {
         }.enterURLAndEnterToBrowser(cookiesTestPage) {
             verifyPageContent("No cookies set")
             clickSetCookiesButton()

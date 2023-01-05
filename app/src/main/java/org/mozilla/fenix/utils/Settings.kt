@@ -13,7 +13,7 @@ import android.content.pm.ShortcutManager
 import android.os.Build
 import android.view.accessibility.AccessibilityManager
 import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.PRIVATE
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.lifecycle.LifecycleOwner
 import mozilla.components.concept.engine.Engine.HttpsOnlyMode
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
@@ -31,7 +31,6 @@ import mozilla.components.support.locale.LocaleManager
 import org.mozilla.fenix.BuildConfig
 import org.mozilla.fenix.Config
 import org.mozilla.fenix.FeatureFlags
-import org.mozilla.fenix.FeatureFlags.historyImprovementFeatures
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.metrics.MozillaProductDetector
@@ -82,9 +81,9 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
         /**
          * The minimum number a search groups should contain.
-         * Filtering is applied depending on the [historyImprovementFeatures] flag value.
          */
-        const val SEARCH_GROUP_MINIMUM_SITES: Int = 2
+        @VisibleForTesting
+        internal var SEARCH_GROUP_MINIMUM_SITES: Int = 2
 
         // The maximum number of top sites to display.
         const val TOP_SITES_MAX_COUNT = 160
@@ -201,10 +200,20 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     )
 
     /**
-     * A cache of the background color to use on cards overlaying the current wallpaper.
+     * A cache of the background color to use on cards overlaying the current wallpaper when the user's
+     * theme is set to Light.
      */
-    var currentWallpaperCardColor by longPreference(
-        appContext.getPreferenceKey(R.string.pref_key_current_wallpaper_card_color),
+    var currentWallpaperCardColorLight by longPreference(
+        appContext.getPreferenceKey(R.string.pref_key_current_wallpaper_card_color_light),
+        default = 0,
+    )
+
+    /**
+     * A cache of the background color to use on cards overlaying the current wallpaper when the user's
+     * theme is set to Dark.
+     */
+    var currentWallpaperCardColorDark by longPreference(
+        appContext.getPreferenceKey(R.string.pref_key_current_wallpaper_card_color_dark),
         default = 0,
     )
 
@@ -213,6 +222,14 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var shouldMigrateLegacyWallpaper by booleanPreference(
         key = appContext.getPreferenceKey(R.string.pref_key_should_migrate_wallpaper),
+        default = true,
+    )
+
+    /**
+     * Indicates if the current legacy wallpaper card colors should be migrated.
+     */
+    var shouldMigrateLegacyWallpaperCardColors by booleanPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_should_migrate_wallpaper_card_colors),
         default = true,
     )
 
@@ -601,9 +618,10 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     /**
      * Indicates if the total cookie protection CRF should be shown.
      */
-    var shouldShowTotalCookieProtectionCFR by booleanPreference(
+    var shouldShowTotalCookieProtectionCFR by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_total_cookie_protection_popup),
-        default = mr2022Sections[Mr2022Section.TCP_CFR] == true,
+        featureFlag = true,
+        default = { mr2022Sections[Mr2022Section.TCP_CFR] == true },
     )
 
     val blockCookiesSelectionInCustomTrackingProtection by stringPreference(
@@ -1027,11 +1045,6 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = true,
     )
 
-    var lastPlacesStorageMaintenance by longPreference(
-        appContext.getPreferenceKey(R.string.pref_key_last_maintenance),
-        default = 0,
-    )
-
     fun addSearchWidgetInstalled(count: Int) {
         val key = appContext.getPreferenceKey(R.string.pref_key_search_widget_installed)
         val newValue = preferences.getInt(key, 0) + count
@@ -1420,4 +1433,29 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             HttpsOnlyMode.ENABLED
         }
     }
+
+    var setAsDefaultGrowthSent by booleanPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_growth_set_as_default),
+        default = false,
+    )
+
+    var resumeGrowthLastSent by longPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_growth_resume_last_sent),
+        default = 0,
+    )
+
+    var uriLoadGrowthLastSent by longPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_growth_uri_load_last_sent),
+        default = 0,
+    )
+
+    var firstWeekSeriesGrowthSent by booleanPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_growth_first_week_series_sent),
+        default = false,
+    )
+
+    var firstWeekDaysOfUseGrowthData by stringSetPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_growth_first_week_days_of_use),
+        default = setOf(),
+    )
 }

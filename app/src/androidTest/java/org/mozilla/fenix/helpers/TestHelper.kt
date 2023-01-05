@@ -9,6 +9,8 @@ package org.mozilla.fenix.helpers
 import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -95,6 +97,7 @@ object TestHelper {
 
     fun restartApp(activity: HomeActivityIntentTestRule) {
         with(activity) {
+            updateCachedSettings()
             finishActivity()
             mDevice.waitForIdle()
             launchActivity(null)
@@ -416,5 +419,15 @@ object TestHelper {
             "updateConfiguration",
             Configuration::class.java,
         ).invoke(am, config)
+    }
+
+    /**
+     * Creates clipboard data.
+     */
+    fun setTextToClipBoard(context: Context, message: String) {
+        val clipBoard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("label", message)
+
+        clipBoard.setPrimaryClip(clipData)
     }
 }
