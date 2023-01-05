@@ -33,12 +33,12 @@ jobs:
           # See <https://stackoverflow.com/a/70010526> and <https://stackoverflow.com/a/70756876>
           # The runner seems to have ~6 gigs of memory, so we make sure to stay under that.
           # We have Java 11 so we don't have a perm size anymore.
-          GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=5g -Xms4096m -Xmx5800m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dev/stderr"
+          GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xms2g -Xmx5g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dev/stderr"
         with:
           gradle-home-cache-cleanup: true
           gradle-executable: /usr/bin/time
-          arguments: -v ./gradlew app:assembleForkRelease -PversionName=${{ env.VERSION_NAME }} --stacktrace 
-      
+          arguments: -v ./gradlew app:assembleForkRelease -PversionName=${{ env.VERSION_NAME }} --stacktrace
+
       - name: Create signed APKs
         if: "contains(toJSON(github.event.ref_type), 'tag') && contains(toJSON(github.event.ref), 'iceraven')"
         uses: abhijitvalluri/sign-apks@v0.8
@@ -48,7 +48,7 @@ jobs:
           alias: ${{ secrets.DEBUG_ALIAS }}
           keyStorePassword: ${{ secrets.DEBUG_KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.DEBUG_KEY_PASSWORD }}
-      
+
       - name: Create changelog
         if: "contains(toJSON(github.event.ref_type), 'tag') && contains(toJSON(github.event.ref), 'iceraven')"
         run: |
