@@ -1,4 +1,4 @@
-# Iceraven Browser! [![Build Status](https://travis-ci.org/fork-maintainers/iceraven-browser.svg?branch=fork)](https://travis-ci.org/fork-maintainers/iceraven-browser) ![Android build](https://github.com/fork-maintainers/iceraven-browser/workflows/Android%20build/badge.svg)
+# Iceraven Browser! [![Build Status](https://travis-ci.org/fork-maintainers/iceraven-browser.svg?branch=fork)](https://travis-ci.org/fork-maintainers/iceraven-browser) [![Release Automation](https://github.com/fork-maintainers/iceraven-browser/actions/workflows/iceraven-build.yml/badge.svg)](https://github.com/fork-maintainers/iceraven-browser/actions/workflows/iceraven-build.yml)
 
 Definitely not brought to you by Mozilla!
 
