@@ -745,6 +745,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = true,
     )
 
+    var showDisplayNameInsteadofEmail by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_show_displayname_insteadof_email),
+        default = true,
+    )
+
     var shouldRelinquishMemoryUnderPressure by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_relinquish_memory_under_pressure),
         default = true,

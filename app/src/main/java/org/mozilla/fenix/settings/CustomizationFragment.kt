@@ -60,6 +60,12 @@ class CustomizationFragment : PreferenceFragmentCompat() {
 
             onPreferenceChangeListener = SharedPreferenceUpdater()
         }
+
+        requirePreference<SwitchPreference>(R.string.pref_key_show_displayname_insteadof_email).apply {
+            isChecked = requireContext().settings().showDisplayNameInsteadofEmail
+
+            onPreferenceChangeListener = SharedPreferenceUpdater()
+        }
     }
 
     private fun setupRadioGroups() {

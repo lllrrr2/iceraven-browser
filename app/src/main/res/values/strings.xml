@@ -590,6 +590,8 @@
     <string name="preference_top_toolbar">Top</string>
     <!-- Preference for using bottom toolbar -->
     <string name="preference_bottom_toolbar">Bottom</string>
+    <!-- Preference for showing display name instead of email -->
+    <string name="preferences_show_displayname_insteadof_email">Show Display name instead of email</string>
 
     <!-- Theme Preferences -->
     <!-- Preference for using light theme -->
@@ -1859,7 +1861,7 @@
     <string name="addons_custom_source_account">Set custom add-ons account</string>
     <!-- Label for add-ons custom source collection preference -->
     <string name="addons_custom_source_collection">Set custom add-ons collection</string>
-    
+
     <!-- Preference category for system behavior customization -->
     <string name="preferences_system_behavior">Configure system behavior</string>
     <!-- Title for relinquish memory preference in customization settings -->
