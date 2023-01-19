@@ -33,11 +33,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import mozilla.components.feature.addons.Addon
 import mozilla.components.feature.addons.R
+import mozilla.components.ui.icons.R as iconsR
 import mozilla.components.feature.addons.databinding.MozacFeatureAddonsFragmentDialogAddonInstalledBinding
 import mozilla.components.feature.addons.ui.translateName
 import mozilla.components.support.base.log.logger.Logger
 import mozilla.components.support.ktx.android.content.appName
 import mozilla.components.support.ktx.android.content.res.resolveAttribute
+import mozilla.components.support.utils.ext.getParcelableCompat
 import java.io.IOException
 
 @VisibleForTesting internal const val KEY_INSTALLED_ADDON = "KEY_ADDON"
@@ -76,7 +78,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
 
     private val safeArguments get() = requireNotNull(arguments)
 
-    internal val addon get() = requireNotNull(safeArguments.getParcelable<Addon>(KEY_ADDON))
+    internal val addon get() = requireNotNull(safeArguments.getParcelableCompat(KEY_ADDON, Addon::class.java))
     private var allowPrivateBrowsing: Boolean = false
 
     internal val confirmButtonRadius
@@ -167,7 +169,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
                 requireContext().appName,
             )
 
-        val icon = safeArguments.getParcelable<Bitmap>(KEY_ICON)
+        val icon = safeArguments.getParcelableCompat(KEY_ICON, Bitmap::class.java)
         if (icon != null) {
             binding.icon.setImageDrawable(BitmapDrawable(resources, icon))
         } else {
@@ -229,7 +231,7 @@ class PagedAddonInstallationDialogFragment : AppCompatDialogFragment() {
                     val att = context.theme.resolveAttribute(android.R.attr.textColorPrimary)
                     iconView.setColorFilter(ContextCompat.getColor(context, att))
                     iconView.setImageDrawable(
-                        ContextCompat.getDrawable(context, R.drawable.mozac_ic_extensions),
+                        ContextCompat.getDrawable(context, iconsR.drawable.mozac_ic_extensions),
                     )
                 }
                 logger.error("Attempt to fetch the ${addon.id} icon failed", e)

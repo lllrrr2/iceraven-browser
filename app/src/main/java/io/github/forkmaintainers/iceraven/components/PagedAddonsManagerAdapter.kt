@@ -30,6 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import mozilla.components.feature.addons.Addon
 import mozilla.components.feature.addons.R
+import mozilla.components.ui.icons.R as iconsR
 import mozilla.components.feature.addons.ui.AddonsManagerAdapterDelegate
 import mozilla.components.feature.addons.ui.CustomViewHolder
 import mozilla.components.feature.addons.ui.CustomViewHolder.AddonViewHolder
@@ -269,7 +270,7 @@ class PagedAddonsManagerAdapter(
                     val context = iconView.context
                     val att = context.theme.resolveAttribute(android.R.attr.textColorPrimary)
                     iconView.setColorFilter(ContextCompat.getColor(context, att))
-                    iconView.setImageDrawable(context.getDrawable(R.drawable.mozac_ic_extensions))
+                    iconView.setImageDrawable(context.getDrawable(iconsR.drawable.mozac_ic_extensions))
                 }
                 logger.error("Attempt to fetch the ${addon.id} icon failed", e)
             }
