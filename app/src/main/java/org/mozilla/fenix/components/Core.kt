@@ -12,6 +12,7 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import mozilla.components.browser.engine.gecko.GeckoEngine
+import mozilla.components.browser.engine.gecko.cookiebanners.GeckoCookieBannersStorage
 import mozilla.components.browser.engine.gecko.fetch.GeckoViewFetchClient
 import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsStorage
 import mozilla.components.browser.icons.BrowserIcons
@@ -132,6 +133,8 @@ class Core(
                 R.color.fx_mobile_layer_color_1,
             ),
             httpsOnlyMode = context.settings().getHttpsOnlyMode(),
+            cookieBannerHandlingModePrivateBrowsing = context.settings().getCookieBannerHandling(),
+            cookieBannerHandlingMode = context.settings().getCookieBannerHandling(),
         )
 
         GeckoEngine(
@@ -180,6 +183,8 @@ class Core(
             trackingProtectionPolicyFactory.createTrackingProtectionPolicy(),
         )
     }
+
+    val cookieBannersStorage by lazyMonitored { GeckoCookieBannersStorage(geckoRuntime) }
 
     val geckoSitePermissionsStorage by lazyMonitored {
         GeckoSitePermissionsStorage(geckoRuntime, OnDiskSitePermissionsStorage(context))

@@ -195,8 +195,10 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login), MenuProvider {
 
         binding.usernameText.addTextChangedListener(
             object : TextWatcher {
-                override fun afterTextChanged(u: Editable?) {
-                    usernameChanged = true
+                override fun afterTextChanged(editable: Editable?) {
+                    // update usernameChanged to true when the text is not empty,
+                    // otherwise it is not changed, as this screen starts with an empty username.
+                    usernameChanged = editable.toString().isNotEmpty()
                     updateUsernameField()
                     setSaveButtonState()
                     findDuplicate()
@@ -331,14 +333,16 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login), MenuProvider {
     }
 
     private fun setSaveButtonState() {
-        activity?.invalidateOptionsMenu()
+        activity?.invalidateMenu()
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.login_save, menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
+    override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+
         val saveButton = menu.findItem(R.id.save_login_button)
         val changesMadeWithNoErrors = validHostname && validUsername && validPassword
         saveButton.isEnabled = changesMadeWithNoErrors

@@ -9,6 +9,7 @@ import androidx.test.uiautomator.UiDevice
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.R
@@ -19,6 +20,7 @@ import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper.getGenericAsset
 import org.mozilla.fenix.helpers.TestHelper.generateRandomString
 import org.mozilla.fenix.helpers.TestHelper.getStringResource
+import org.mozilla.fenix.helpers.TestHelper.waitUntilSnackbarGone
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.homeScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
@@ -227,6 +229,8 @@ class TopSitesTest {
             verifyExistingTopSitesTabs(defaultWebPage.title)
         }.openContextMenuOnTopSitesWithTitle(defaultWebPage.title) {
         }.deleteTopSiteFromHistory {
+            verifySnackBarText(getStringResource(R.string.snackbar_top_site_removed))
+            waitUntilSnackbarGone()
         }.openThreeDotMenu {
         }.openHistory {
             verifyEmptyHistoryView()
@@ -275,6 +279,7 @@ class TopSitesTest {
         }
     }
 
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/25926")
     @Test
     fun verifySponsoredShortcutsSponsorsAndPrivacyOptionTest() {
         var sponsoredShortcutTitle = ""

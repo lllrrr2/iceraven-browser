@@ -28,6 +28,8 @@ import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
 import androidx.constraintlayout.widget.ConstraintSet.TOP
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -50,12 +52,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import mozilla.components.browser.menu.view.MenuButton
+import mozilla.components.browser.state.search.SearchEngine
 import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.selector.normalTabs
 import mozilla.components.browser.state.selector.privateTabs
 import mozilla.components.browser.state.state.BrowserState
+import mozilla.components.browser.state.state.searchEngines
 import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.browser.state.store.BrowserStore
+import mozilla.components.concept.menu.Orientation
+import mozilla.components.concept.menu.candidate.DrawableMenuIcon
+import mozilla.components.concept.menu.candidate.TextMenuCandidate
 import mozilla.components.concept.storage.FrecencyThresholdOption
 import mozilla.components.concept.sync.AccountObserver
 import mozilla.components.concept.sync.AuthType
@@ -74,6 +81,7 @@ import mozilla.components.support.ktx.kotlinx.coroutines.flow.ifChanged
 import org.mozilla.fenix.Config
 import org.mozilla.fenix.GleanMetrics.Events
 import org.mozilla.fenix.GleanMetrics.HomeScreen
+import org.mozilla.fenix.GleanMetrics.UnifiedSearch
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.addons.showSnackBar
@@ -88,6 +96,7 @@ import org.mozilla.fenix.databinding.FragmentHomeBinding
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.containsQueryParameters
 import org.mozilla.fenix.ext.hideToolbar
+import org.mozilla.fenix.ext.increaseTapArea
 import org.mozilla.fenix.ext.nav
 import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.runIfFragmentIsAttached
@@ -115,6 +124,7 @@ import org.mozilla.fenix.nimbus.FxNimbus
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
 import org.mozilla.fenix.perf.runBlockingIncrement
+import org.mozilla.fenix.search.toolbar.SearchSelectorMenu
 import org.mozilla.fenix.tabstray.TabsTrayAccessPoint
 import org.mozilla.fenix.utils.Settings.Companion.TOP_SITES_PROVIDER_MAX_THRESHOLD
 import org.mozilla.fenix.utils.ToolbarPopupWindow
@@ -142,6 +152,13 @@ class HomeFragment : Fragment() {
             ToolbarPosition.BOTTOM -> binding.toolbarLayout
             ToolbarPosition.TOP -> null
         }
+
+    private val searchSelectorMenu by lazy {
+        SearchSelectorMenu(
+            context = requireContext(),
+            interactor = sessionControlInteractor,
+        )
+    }
 
     private val browsingModeManager get() = (activity as HomeActivity).browsingModeManager
 
@@ -329,6 +346,24 @@ class HomeFragment : Fragment() {
                 owner = viewLifecycleOwner,
                 view = binding.root,
             )
+        }
+
+        requireContext().settings().showUnifiedSearchFeature.let {
+            binding.searchSelector.isVisible = it
+            binding.searchEngineIcon.isGone = it
+        }
+
+        binding.searchSelector.apply {
+            setOnClickListener {
+                val orientation = if (context.settings().shouldUseBottomToolbar) {
+                    Orientation.UP
+                } else {
+                    Orientation.DOWN
+                }
+
+                UnifiedSearch.searchMenuTapped.record(NoExtras())
+                searchSelectorMenu.menuController.show(anchor = it, orientation = orientation, forceOrientation = true)
+            }
         }
 
         _sessionControlInteractor = SessionControlInteractor(
@@ -595,6 +630,14 @@ class HomeFragment : Fragment() {
             }
         }
 
+        consumeFlow(requireComponents.core.store) { flow ->
+            flow.map { state -> state.search }
+                .ifChanged()
+                .collect { search ->
+                    updateSearchSelectorMenu(search.searchEngines)
+                }
+        }
+
         // DO NOT MOVE ANYTHING BELOW THIS addMarker CALL!
         requireComponents.core.engine.profiler?.addMarker(
             MarkersFragmentLifecycleCallbacks.MARKER_NAME,
@@ -603,20 +646,42 @@ class HomeFragment : Fragment() {
         )
     }
 
+    private fun updateSearchSelectorMenu(searchEngines: List<SearchEngine>) {
+        val searchEngineList = searchEngines
+            .map {
+                TextMenuCandidate(
+                    text = it.name,
+                    start = DrawableMenuIcon(
+                        drawable = it.icon.toDrawable(resources),
+                    ),
+                ) {
+                    sessionControlInteractor.onMenuItemTapped(SearchSelectorMenu.Item.SearchEngine(it))
+                }
+            }
+
+        searchSelectorMenu.menuController.submitList(searchSelectorMenu.menuItems(searchEngineList))
+    }
+
     private fun observeSearchEngineChanges() {
         consumeFlow(store) { flow ->
             flow.map { state -> state.search.selectedOrDefaultSearchEngine }
                 .ifChanged()
                 .collect { searchEngine ->
-                    if (searchEngine != null) {
+                    val name = searchEngine?.name
+                    val icon = searchEngine?.let {
+                        // Changing dimensions doesn't not affect the icon size, not sure what the
+                        // code is doing:  https://github.com/mozilla-mobile/fenix/issues/27763
                         val iconSize =
                             requireContext().resources.getDimensionPixelSize(R.dimen.preference_icon_drawable_size)
-                        val searchIcon =
-                            BitmapDrawable(requireContext().resources, searchEngine.icon)
-                        searchIcon.setBounds(0, 0, iconSize, iconSize)
-                        binding.searchEngineIcon.setImageDrawable(searchIcon)
+                        BitmapDrawable(requireContext().resources, searchEngine.icon).apply {
+                            setBounds(0, 0, iconSize, iconSize)
+                        }
+                    }
+
+                    if (requireContext().settings().showUnifiedSearchFeature) {
+                        binding.searchSelector.setIcon(icon, name)
                     } else {
-                        binding.searchEngineIcon.setImageDrawable(null)
+                        binding.searchEngineIcon.setImageDrawable(icon)
                     }
                 }
         }
@@ -836,6 +901,8 @@ class HomeFragment : Fragment() {
                     true,
                 )
             layout.findViewById<Button>(R.id.cfr_pos_button).apply {
+                this.increaseTapArea(CFR_TAP_INCREASE_DPS)
+
                 setOnClickListener {
                     PrivateShortcutCreateManager.createPrivateShortcut(context)
                     privateBrowsingRecommend.dismiss()
@@ -1017,6 +1084,8 @@ class HomeFragment : Fragment() {
 
         private const val CFR_WIDTH_DIVIDER = 1.7
         private const val CFR_Y_OFFSET = -20
+
+        private const val CFR_TAP_INCREASE_DPS = 6
 
         // Sponsored top sites titles and search engine names used for filtering
         const val AMAZON_SPONSORED_TITLE = "Amazon"

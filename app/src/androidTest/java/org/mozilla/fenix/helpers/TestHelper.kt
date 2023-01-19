@@ -6,6 +6,7 @@
 
 package org.mozilla.fenix.helpers
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.ActivityNotFoundException
@@ -20,8 +21,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
+import android.os.storage.StorageManager
+import android.os.storage.StorageVolume
 import android.provider.Settings
+import android.util.Log
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
@@ -38,10 +43,10 @@ import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.test.runner.permission.PermissionRequester
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject
-import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
@@ -52,12 +57,13 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.Matcher
 import org.junit.Assert
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.mozilla.fenix.Config
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.customtabs.ExternalAppBrowserActivity
 import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.helpers.Constants.PackageName.GOOGLE_APPS_PHOTOS
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTimeShort
 import org.mozilla.fenix.helpers.ext.waitNotNull
@@ -65,6 +71,7 @@ import org.mozilla.fenix.helpers.idlingresource.NetworkConnectionIdlingResource
 import org.mozilla.fenix.ui.robots.BrowserRobot
 import org.mozilla.fenix.utils.IntentUtils
 import org.mozilla.gecko.util.ThreadUtils
+import java.io.File
 import java.util.Locale
 import java.util.regex.Pattern
 
@@ -147,24 +154,21 @@ object TestHelper {
         }
     }
 
-    // Remove test file from Google Photos (AOSP) on Firebase
-    fun deleteDownloadFromStorage() {
-        val deleteButton = mDevice.findObject(UiSelector().resourceId("$GOOGLE_APPS_PHOTOS:id/trash"))
-        deleteButton.waitForExists(waitingTime)
-        deleteButton.click()
-
-        // Sometimes there's a secondary confirmation
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun deleteDownloadedFileOnStorage(fileName: String) {
+        val storageManager: StorageManager? = appContext.getSystemService(Context.STORAGE_SERVICE) as StorageManager?
+        val storageVolumes = storageManager!!.storageVolumes
+        val storageVolume: StorageVolume = storageVolumes[0]
+        val file = File(storageVolume.directory!!.path + "/Download/" + fileName)
         try {
-            val deleteConfirm = mDevice.findObject(UiSelector().text("Got it"))
-            deleteConfirm.waitForExists(waitingTime)
-            deleteConfirm.click()
-        } catch (e: UiObjectNotFoundException) {
-            // Do nothing
+            file.delete()
+            Log.d("TestLog", "File delete try 1")
+            assertFalse("The file was not deleted", file.exists())
+        } catch (e: AssertionError) {
+            file.delete()
+            Log.d("TestLog", "File delete retried")
+            assertFalse("The file was not deleted", file.exists())
         }
-
-        val trashIt = mDevice.findObject(UiSelector().resourceId("$GOOGLE_APPS_PHOTOS:id/move_to_trash"))
-        trashIt.waitForExists(waitingTime)
-        trashIt.click()
     }
 
     fun setNetworkEnabled(enabled: Boolean) {
@@ -388,20 +392,31 @@ object TestHelper {
 
     /**
      * Changes the default language of the entire device, not just the app.
+     * Runs on Debug variant as we don't want to adjust Release permission manifests
      * Runs the test in its testBlock.
-     * Cleans up and sets the default locale after it's are done.
+     * Cleans up and sets the default locale after it's done.
      */
     fun runWithSystemLocaleChanged(locale: Locale, testRule: ActivityTestRule<HomeActivity>, testBlock: () -> Unit) {
-        val defaultLocale = Locale.getDefault()
+        if (Config.channel.isDebug) {
+            /* Sets permission to change device language */
+            PermissionRequester().apply {
+                addPermissions(
+                    Manifest.permission.CHANGE_CONFIGURATION,
+                )
+                requestPermissions()
+            }
 
-        try {
-            setSystemLocale(locale)
-            testBlock()
-            ThreadUtils.runOnUiThread { testRule.activity.recreate() }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            setSystemLocale(defaultLocale)
+            val defaultLocale = Locale.getDefault()
+
+            try {
+                setSystemLocale(locale)
+                testBlock()
+                ThreadUtils.runOnUiThread { testRule.activity.recreate() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                setSystemLocale(defaultLocale)
+            }
         }
     }
 

@@ -33,7 +33,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
@@ -1251,7 +1250,7 @@ abstract class BaseBrowserFragment :
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             val sitePermissions: SitePermissions? = tab.content.url.getOrigin()?.let { origin ->
                 val storage = requireComponents.core.permissionStorage
-                storage.findSitePermissionsBy(origin)
+                storage.findSitePermissionsBy(origin, tab.content.private)
             }
 
             view?.let {
@@ -1370,6 +1369,7 @@ abstract class BaseBrowserFragment :
                 .setText(getString(R.string.full_screen_notification))
                 .show()
             activity?.enterToImmersiveMode()
+            (view as? SwipeGestureLayout)?.isSwipeEnabled = false
             browserToolbarView.collapse()
             browserToolbarView.view.isVisible = false
             val browserEngine = binding.swipeRefresh.layoutParams as CoordinatorLayout.LayoutParams
@@ -1384,6 +1384,7 @@ abstract class BaseBrowserFragment :
             MediaState.fullscreen.record(NoExtras())
         } else {
             activity?.exitImmersiveMode()
+            (view as? SwipeGestureLayout)?.isSwipeEnabled = true
             (activity as? HomeActivity)?.let { activity ->
                 activity.themeManager.applyStatusBarTheme(activity)
             }
@@ -1396,6 +1397,11 @@ abstract class BaseBrowserFragment :
         }
 
         binding.swipeRefresh.isEnabled = shouldPullToRefreshBeEnabled(inFullScreen)
+    }
+
+    @CallSuper
+    internal open fun onUpdateToolbarForConfigurationChange(toolbar: BrowserToolbarView) {
+        toolbar.dismissMenu()
     }
 
     /*
@@ -1470,7 +1476,9 @@ abstract class BaseBrowserFragment :
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
-        _browserToolbarView?.dismissMenu()
+        _browserToolbarView?.let {
+            onUpdateToolbarForConfigurationChange(it)
+        }
     }
 
     // This method is called in response to native web extension messages from

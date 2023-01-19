@@ -67,6 +67,8 @@
     <string name="pref_key_last_browse_activity_time" translatable="false">pref_key_last_browse_activity_time</string>
     <string name="pref_key_last_cfr_shown_time" translatable="false">pref_key_last_cfr_shown_time</string>
     <string name="pref_key_should_show_default_browser_notification" translatable="false">pref_key_should_show_default_browser_notification</string>
+    <string name="pref_key_re_engagement_notification_shown" translatable="false">pref_key_re_engagement_notification_shown</string>
+    <string name="pref_key_re_engagement_notification_enabled" translatable="false">pref_key_re_engagement_notification_enabled</string>
     <string name="pref_key_is_first_run" translatable="false">pref_key_is_first_run</string>
     <string name="pref_key_home_blocklist">pref_key_home_blocklist</string>
 
@@ -157,6 +159,10 @@
     <string name="pref_key_https_only" translatable="false">pref_key_https_only</string>
     <string name="pref_key_https_only_in_all_tabs" translatable="false">pref_key_https_only_in_all_tabs</string>
     <string name="pref_key_https_only_in_private_tabs" translatable="false">pref_key_https_only_in_private_tabs</string>
+
+    <!-- Cookie Banner Reduction Settings-->
+    <string name="pref_key_cookie_banner_settings" translatable="false">pref_key_cookie_banner_settings</string>
+    <string name="pref_key_cookie_banner_v1" translatable="false">pref_key_cookie_banner_v1</string>
 
     <!-- Tracking Protection Settings -->
     <string name="pref_key_etp_learn_more" translatable="false">pref_key_etp_learn_more</string>
@@ -321,8 +327,7 @@
 
     <!-- Growth Data -->
     <string name="pref_key_growth_set_as_default" translatable="false">pref_key_growth_set_as_default</string>
-    <string name="pref_key_growth_resume_last_sent" translatable="false">pref_key_growth_last_resumed</string>
-    <string name="pref_key_growth_uri_load_last_sent" translatable="false">pref_key_growth_uri_load_last_sent</string>
     <string name="pref_key_growth_first_week_series_sent" translatable="false">pref_key_growth_first_week_series_sent</string>
     <string name="pref_key_growth_first_week_days_of_use" translatable="false">pref_key_growth_first_week_days_of_use</string>
+    <string name="pref_key_growth_ad_click_sent" translatable="false">pref_key_growth_ad_click_sent</string>
 </resources>
