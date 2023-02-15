@@ -5,6 +5,8 @@
 package org.mozilla.fenix.settings.quicksettings.protections.cookiebanners
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
@@ -14,14 +16,17 @@ import kotlinx.coroutines.withContext
 import mozilla.components.browser.state.selector.findTabOrCustomTab
 import mozilla.components.browser.state.state.SessionState
 import mozilla.components.browser.state.store.BrowserStore
+import mozilla.components.concept.engine.Engine
 import mozilla.components.concept.engine.cookiehandling.CookieBannersStorage
 import mozilla.components.concept.engine.permission.SitePermissions
 import mozilla.components.feature.session.SessionUseCases
+import mozilla.components.lib.publicsuffixlist.PublicSuffixList
 import mozilla.components.service.glean.private.NoExtras
 import org.mozilla.fenix.GleanMetrics.CookieBanners
 import org.mozilla.fenix.browser.BrowserFragmentDirections
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.runIfFragmentIsAttached
+import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.trackingprotection.ProtectionsAction
 import org.mozilla.fenix.trackingprotection.ProtectionsStore
 
@@ -60,14 +65,19 @@ class DefaultCookieBannerDetailsController(
     private val gravity: Int,
     private val getCurrentTab: () -> SessionState?,
     private val reload: SessionUseCases.ReloadUrlUseCase,
+    private val engine: Engine = context.components.core.engine,
+    private val publicSuffixList: PublicSuffixList = context.components.publicSuffixList,
 ) : CookieBannerDetailsController {
 
     override fun handleBackPressed() {
         getCurrentTab()?.let { tab ->
             context.components.useCases.trackingProtectionUseCases.containsException(tab.id) { contains ->
                 ioScope.launch {
-                    val hasException =
+                    val hasException = if (context.settings().shouldUseCookieBanner) {
                         cookieBannersStorage.hasException(tab.content.url, tab.content.private)
+                    } else {
+                        false
+                    }
                     withContext(Dispatchers.Main) {
                         fragment.runIfFragmentIsAttached {
                             navController().popBackStack()
@@ -105,6 +115,7 @@ class DefaultCookieBannerDetailsController(
                 )
                 CookieBanners.exceptionRemoved.record(NoExtras())
             } else {
+                clearSiteData(tab)
                 cookieBannersStorage.addException(uri = tab.content.url, privateBrowsing = tab.content.private)
                 CookieBanners.exceptionAdded.record(NoExtras())
             }
@@ -114,6 +125,21 @@ class DefaultCookieBannerDetailsController(
                 ),
             )
             reload(tab.id)
+        }
+    }
+
+    @VisibleForTesting
+    internal suspend fun clearSiteData(tab: SessionState) {
+        val host = tab.content.url.toUri().host.orEmpty()
+        val domain = publicSuffixList.getPublicSuffixPlusOne(host).await()
+        withContext(Dispatchers.Main) {
+            engine.clearData(
+                host = domain,
+                data = Engine.BrowsingData.select(
+                    Engine.BrowsingData.AUTH_SESSIONS,
+                    Engine.BrowsingData.ALL_SITE_DATA,
+                ),
+            )
         }
     }
 }

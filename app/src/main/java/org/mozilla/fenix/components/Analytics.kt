@@ -22,8 +22,10 @@ import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.ReleaseChannel
 import org.mozilla.fenix.components.metrics.AdjustMetricsService
+import org.mozilla.fenix.components.metrics.DefaultMetricsStorage
 import org.mozilla.fenix.components.metrics.GleanMetricsService
 import org.mozilla.fenix.components.metrics.MetricController
+import org.mozilla.fenix.components.metrics.MetricsStorage
 import org.mozilla.fenix.experiments.createNimbus
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.gleanplumb.CustomAttributeProvider
@@ -31,6 +33,7 @@ import org.mozilla.fenix.gleanplumb.NimbusMessagingStorage
 import org.mozilla.fenix.gleanplumb.OnDiskMessageMetadataStorage
 import org.mozilla.fenix.nimbus.FxNimbus
 import org.mozilla.fenix.perf.lazyMonitored
+import org.mozilla.fenix.utils.BrowsersCache
 import org.mozilla.geckoview.BuildConfig.MOZ_APP_BUILDID
 import org.mozilla.geckoview.BuildConfig.MOZ_APP_VENDOR
 import org.mozilla.geckoview.BuildConfig.MOZ_APP_VERSION
@@ -112,6 +115,14 @@ class Analytics(
             ),
             enabled = true,
             nonFatalCrashIntent = pendingIntent,
+        )
+    }
+
+    val metricsStorage: MetricsStorage by lazyMonitored {
+        DefaultMetricsStorage(
+            context = context,
+            settings = context.settings(),
+            checkDefaultBrowser = { BrowsersCache.all(context).isDefaultBrowser },
         )
     }
 

@@ -4,7 +4,6 @@
 
 package org.mozilla.fenix.home.recentbookmarks.view
 
-import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,7 +42,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mozilla.components.browser.icons.compose.Loader
 import mozilla.components.browser.icons.compose.Placeholder
@@ -51,6 +49,7 @@ import mozilla.components.browser.icons.compose.WithIcon
 import mozilla.components.ui.colors.PhotonColors
 import org.mozilla.fenix.components.components
 import org.mozilla.fenix.compose.Image
+import org.mozilla.fenix.compose.annotation.LightDarkPreview
 import org.mozilla.fenix.compose.inComposePreview
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.theme.FirefoxTheme
@@ -70,7 +69,6 @@ private val imageModifier = Modifier
  * @param menuItems List of [RecentBookmarksMenuItem] shown when long clicking a [RecentBookmarkItem]
  * @param backgroundColor The background [Color] of each bookmark.
  * @param onRecentBookmarkClick Invoked when the user clicks on a recent bookmark.
- * @param onRecentBookmarkLongClick Invoked when the user long clicks on a recent bookmark.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -79,7 +77,6 @@ fun RecentBookmarks(
     menuItems: List<RecentBookmarksMenuItem>,
     backgroundColor: Color,
     onRecentBookmarkClick: (RecentBookmark) -> Unit = {},
-    onRecentBookmarkLongClick: () -> Unit = {},
 ) {
     LazyRow(
         modifier = Modifier.semantics {
@@ -95,7 +92,6 @@ fun RecentBookmarks(
                 menuItems = menuItems,
                 backgroundColor = backgroundColor,
                 onRecentBookmarkClick = onRecentBookmarkClick,
-                onRecentBookmarkLongClick = onRecentBookmarkLongClick,
             )
         }
     }
@@ -108,7 +104,6 @@ fun RecentBookmarks(
  * @param menuItems The list of [RecentBookmarksMenuItem] shown when long clicking on the recent bookmark item.
  * @param backgroundColor The background [Color] of the recent bookmark item.
  * @param onRecentBookmarkClick Invoked when the user clicks on the recent bookmark item.
- * @param onRecentBookmarkLongClick Invoked when the user long clicks on the recent bookmark item.
  */
 @OptIn(
     ExperimentalFoundationApi::class,
@@ -120,7 +115,6 @@ private fun RecentBookmarkItem(
     menuItems: List<RecentBookmarksMenuItem>,
     backgroundColor: Color,
     onRecentBookmarkClick: (RecentBookmark) -> Unit = {},
-    onRecentBookmarkLongClick: () -> Unit = {},
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
 
@@ -130,10 +124,7 @@ private fun RecentBookmarkItem(
             .combinedClickable(
                 enabled = true,
                 onClick = { onRecentBookmarkClick(bookmark) },
-                onLongClick = {
-                    onRecentBookmarkLongClick()
-                    isMenuExpanded = true
-                },
+                onLongClick = { isMenuExpanded = true },
             ),
         shape = cardShape,
         backgroundColor = backgroundColor,
@@ -276,8 +267,7 @@ private fun RecentBookmarksMenu(
 }
 
 @Composable
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@LightDarkPreview
 private fun RecentBookmarksPreview() {
     FirefoxTheme {
         RecentBookmarks(
